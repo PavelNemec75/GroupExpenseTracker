@@ -1,0 +1,45 @@
+
+
+
+Naprogramuj v Djangu aplikaci s GraphQL API, ktera bude slouzit k evidenci sdilenych nakladu ucastniku akce -
+napr. na vikendove chate budou tri rodiny, prvni plati ubytovani, druha rodina spolecny nakup potravin,
+treti dovezla autem prvni rodinu a deli se s ni tedy o benzin, apod. Na konci vikendu je potreba vyuctovani -
+kolik ma kdo komu zaplatit. Jako databazi pouzij SQLite, dotazy do ni mapuj pres ORM. Pro GraphQL idealne pouzij
+knihovnu Strawberry (https://strawberry.rocks/). Frontend neni potreba, staci GraphiQL pro testovani API.
+Mely by existovat API pro:
+
+- vytvoreni nove akce (vstup nazev akce)
+- smazani akce
+- pridani ucastnika k akci (vstup akce a email ucastnika)
+- smazani ucastnika z akce
+- pridani nove uctovane polozky (vstup popis polozky, cena, neprazdny seznam ucastniku, kteri se o tuto polozku
+deli rovnym dilem a volitelne akce, ke ktere polozka patri - kdyz neni zadana, pracuje se s posledne vytvorenou)
+- smazani uctovane polozky
+- listovani polozek evidovanych k akci a ucastniku, kteri se o ni deli
+- listovani polozek evidovanych k ucastniku a jeho podil z ceny
+- listovani akci a jejich ucastniku
+- query, ktera k dane akci spocita vyuctovani: seznam ucastniku akce a jejich ucetni bilance
+(zaporna, pokud maji platit, kladna, pokud maji penize dostat, suma vsech ucetnich bilanci k akci je vzdy nulova)
+
+Volitelne pridani obtiznosti: uzivatel se musi zalogovat pres nejakou socialni sit (Gmail, Twitter, Facebook, etc.),
+v kodu jsou vyuzite dataloadery (https://strawberry.rocks/docs/guides/dataloaders), cela aplikace je jde zabalit
+jako Docker image, query maji strankovani.
+
+
+--------------
+otazky
+
+akce 1:n rodina 1:n clenove
+
+ahoj,
+
+pls jedna rodina je tedy brana jako jeden ucastnik akce?
+
+tedy:
+event 1:n member
+
+nebo:
+event 1:n group 1:n member
+
+
+
