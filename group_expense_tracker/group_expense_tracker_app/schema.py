@@ -26,6 +26,8 @@ class Mutation:
         post.save()
         return post
 
+
+    @strawberry.field
     def update_xpost(self, id: int, title: str, author: str, message: str) -> PostType: # noqa A003
         post = Posts.objects.get(id=id)
         post.title = title
@@ -34,7 +36,7 @@ class Mutation:
         post.save()
         return post
 
-    # Defina a schema
+    # Define a schema
 
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)
