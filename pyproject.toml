@@ -27,7 +27,7 @@ select = [
 # all rules
 # select = ["F", "W", "E", "W", "C90", "I", "N", "D", "UP", "YTT", "ANN", "ASYNC", "S", "BLE", "FBT", "B", "A", "COM", "CPY", "C4", "DTZ", "T10", "DJ", "EM", "EXE", "FA", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "TD", "FIX", "ERA", "PD", "PGH", "PL", "TRY", "FLY", "NPY", "AIR", "PERF", "FURB", "RUF"]
 
-ignore = ["TRY002", "TRY003", "TD003", "I001", "N803", "N806", "RUF100"]
+ignore = ["TRY002", "TRY003", "TD003", "I001", "N803", "N806", "RUF100", "RUF012", "RUF013", "A002"]
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
 #fixable = ["ALL"]
