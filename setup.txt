@@ -1,0 +1,61 @@
+
+python -m pip install --upgrade pip
+python -m pip install Django==4.2.7
+python -m pip install strawberry-graphql-django==0.25.0
+
+django-admin startproject group_expense_tracker
+python manage.py startapp group_expense_tracker_app
+
+/group_expense_tracker/settings.py
+INSTALLED_APPS
+add
+# Local app
+'group_expense_tracker_app',
+# Third party apps
+'strawberry',
+
+/group_expense_tracker/urls.py
+import include
+add
+urlpatterns
+add
+path("", include("group_expense_tracker_app.urls"))
+
+/group_expense_tracker_app
+create file urls.py
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path("", views.index_view, name="index"),
+]
+
+/group_expense_tracker_app/views.py
+add
+def index_view(request):
+    context = {"title": "API"}
+    return render(request, "index.html", context)
+
+
+/group_expense_tracker_app
+create folder templates
+create file index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>title</title>
+</head>
+
+<body>
+
+<h3>{{}title}</h3>
+
+</body>
+
+</html>
+
+create new run configuration
+script group_expense_tracker\manage.py
+parameter runserver
