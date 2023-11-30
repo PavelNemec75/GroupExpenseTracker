@@ -1,6 +1,8 @@
-from django.contrib import admin # noqa F401
+from django.contrib import admin
+from .models import Event, Participant, EventParticipant, EventExpenseItem, EventExpenseGroup
 
-# Register your models here.
-
-from .models import Posts
-admin.site.register(Posts)
+admin.site.register(Event)
+admin.site.register(Participant)
+admin.site.register(EventParticipant)
+admin.site.register(EventExpenseItem)
+admin.site.register(EventExpenseGroup)

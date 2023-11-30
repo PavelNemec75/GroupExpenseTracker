@@ -6,6 +6,10 @@ python -m pip install strawberry-graphql-django==0.25.0
 django-admin startproject group_expense_tracker
 python manage.py startapp group_expense_tracker_app
 
+python manage.py createsuperuser
+create superuser
+
+
 /group_expense_tracker/settings.py
 INSTALLED_APPS
 add
@@ -50,7 +54,7 @@ create file index.html
 
 <body>
 
-<h3>{{}title}</h3>
+<h3>{{title}}</h3>
 
 </body>
 
@@ -85,7 +89,7 @@ from typing import List
 from . import models
 
 
-@strawberry.dajngo.type(models.Posts)
+@strawberry.django.type(models.Posts)
 class PostType:
     id: int
     title: str

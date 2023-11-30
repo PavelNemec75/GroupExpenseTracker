@@ -22,5 +22,5 @@ from group_expense_tracker_app.schema import schema
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include("group_expense_tracker_app.urls")),
-path("graphql", GraphQLView.as_view(schema=schema)),
+    path("graphql", GraphQLView.as_view(schema=schema)),
 ]

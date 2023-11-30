@@ -58,7 +58,7 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
-    "modules/shared",
+    "group_expense_tracker/group_expense_tracker_app/migrations",
 ]
 
 per-file-ignores = { }
