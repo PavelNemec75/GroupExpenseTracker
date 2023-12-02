@@ -1,7 +1,16 @@
 
 
+
 mutation CreateEvents {
-  createEvent(eventName: "event1", eventStartDate: "2023-12-01", eventEndDate: "2023-12-02") {
+  createEvent(eventName: "event5", eventStartDate: "2023-12-01", eventEndDate: "2023-12-02") {
     eventId
+    eventCreatedAt
+  }
+}
+
+mutation CreateParticipants {
+  createParticipant(participantEmail: "participant8@example.com") {
+    participantId
+    participantCreatedAt
   }
 }

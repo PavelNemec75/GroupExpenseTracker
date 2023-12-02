@@ -17,7 +17,7 @@ class EventType:
 class ParticipantType:
     participant_id: str
     participant_email: str
-    participant_created_at: Optional[datetime]
+    participant_created_at: datetime
 
 
 @strawberry.django.type(models.EventParticipant)
@@ -25,7 +25,7 @@ class EventParticipantType:
     event_participant_id: str
     participant: ParticipantType
     event: EventType
-    event_participant_registered_at: Optional[datetime]
+    event_participant_registered_at: datetime
 
 
 @strawberry.django.type(models.EventExpenseItem)

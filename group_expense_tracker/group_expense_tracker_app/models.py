@@ -1,6 +1,6 @@
 import uuid
 
-from django.db import models
+from django.db import models, transaction
 
 
 class Event(models.Model):
@@ -10,14 +10,34 @@ class Event(models.Model):
     event_end_date = models.DateTimeField(null=True)
     event_created_at = models.DateTimeField(auto_now_add=True)
 
+    def delete(self, *args, **kwargs):
+        with transaction.atomic():
+            expense_group_ids = EventExpenseGroup.objects.filter(
+                event_participant__event=self).values_list('event_expense_group_id', flat=True,
+                                                           )
+            EventExpenseItem.objects.filter(event_expense_group_id__in=expense_group_ids).delete()
+            EventExpenseGroup.objects.filter(event_participant__event=self).delete()
+            EventParticipant.objects.filter(event=self).delete()
+            super().delete(*args, **kwargs)
+
     def __str__(self):
         return self.event_name
 
 
 class Participant(models.Model):
     participant_id = models.TextField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
-    participant_email = models.EmailField(unique=True)
+    participant_email = models.EmailField(blank=False, unique=True)
     participant_created_at = models.DateTimeField(auto_now_add=True)
+
+    # def delete(self, *args, **kwargs):
+    #     with transaction.atomic():
+    #         expense_group_ids = EventExpenseGroup.objects.filter(
+    #             event_participant__event=self).values_list('event_expense_group_id', flat=True
+    #                                                       )
+    #         EventExpenseItem.objects.filter(event_expense_group_id__in=expense_group_ids).delete()
+    #         EventExpenseGroup.objects.filter(event_participant__event=self).delete()
+    #         EventParticipant.objects.filter(event=self).delete()
+    #         super().delete(*args, **kwargs)
 
     def __str__(self):
         return self.participant_email
@@ -35,8 +55,8 @@ class EventParticipant(models.Model):
 
 class EventExpenseItem(models.Model):
     event_expense_item_id = models.TextField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
-    event_expense_item_name = models.TextField()
-    event_expense_item_price_eur = models.DecimalField(max_digits=10, decimal_places=2)
+    event_expense_item_name = models.TextField(blank=False)
+    event_expense_item_price_eur = models.DecimalField(blank=False, max_digits=10, decimal_places=2)
 
     def __str__(self):
         return self.event_expense_item_name

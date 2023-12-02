@@ -35,11 +35,10 @@ class Mutation:
 
     @strawberry.mutation
     def create_event(
-        self,
-        event_name: str,
-        event_start_date: Optional[datetime] = None,
-        event_end_date: Optional[datetime] = None,
-        event_created_at: Optional[datetime] = None,
+            self,
+            event_name: str,
+            event_start_date: Optional[datetime] = None,
+            event_end_date: Optional[datetime] = None,
     ) -> EventType:
         existing_event = Event.objects.filter(event_name=event_name).first()
         if existing_event:
@@ -49,7 +48,6 @@ class Mutation:
             event_name=event_name,
             event_start_date=event_start_date,
             event_end_date=event_end_date,
-            event_created_at=event_created_at,
         )
         new_event.save()
 
@@ -61,34 +59,25 @@ class Mutation:
             event_created_at=new_event.event_created_at,
         )
 
-
-
-    # @strawberry.mutation
-    # def create_event(self, event_name: str) -> EventType:
-    #     event = Event(event_name=event_name)
-    #     event.save()
-    #     return event
-
-
-    # @strawberry.mutation
-    # def create_event(self, event_name: str) -> EventType:
-    #     new_event = Event(event_name=event_name)
-    #     new_event.save()
-    #     return EventType(event_id=new_event.event_id, event_name=new_event.event_name)
-
-
-    # @mutation.field
-    # @strawberry.mutation
-    # def create_event(self, event_name: str) -> Event.event_id:
-    #     new_event = Event(event_name=event_name)
-    #     new_event.save()
-    #     return new_event.event_id
-
     @strawberry.mutation
-    def create_participant(self, participant_email: str) -> ParticipantType:
-        participant = Participant(participant_email=participant_email)
-        participant.save()
-        return participant
+    def create_participant(
+            self,
+            participant_email: str,
+    ) -> ParticipantType:
+        existing_participant = Participant.objects.filter(participant_email=participant_email).first()
+        if existing_participant:
+            raise ValueError(f"Participant with email address \"{participant_email}\" already exists.")
+
+        new_participant = Participant(
+            participant_email=participant_email,
+        )
+        new_participant.save()
+
+        return ParticipantType(
+            participant_created_at=new_participant.participant_created_at,
+            participant_email=new_participant.participant_email,
+            participant_id=new_participant.participant_id,
+        )
 
     @strawberry.mutation
     def add_event_participant(self, event_id: str, participant_id: str) -> EventParticipantType:
