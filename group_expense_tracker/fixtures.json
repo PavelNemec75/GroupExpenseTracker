@@ -5,8 +5,8 @@
         "model": "group_expense_tracker_app.event",
         "pk": 1,
         "fields": {
-            "event_id": "your_event_id",
-            "event_name": "Your Event",
+            "event_id": "event_id_1",
+            "event_name": "event_1",
             "event_start_date": null,
             "event_end_date": null,
             "event_created_at": "2023-01-01T00:00:00Z"

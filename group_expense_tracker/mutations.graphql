@@ -1,0 +1,7 @@
+
+
+mutation CreateEvents {
+  createEvent(eventName: "event1", eventStartDate: "2023-12-01", eventEndDate: "2023-12-02") {
+    eventId
+  }
+}

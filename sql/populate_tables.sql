@@ -32,6 +32,9 @@ INSERT INTO event_participants (event_participant_id, participant_id, event_id, 
 
 -- event_expense
 INSERT INTO event_expense (event_expense_id, event_expense_name, event_participant_id, event_expense_item_id) VALUES ('expense_id_1', 'event_expense_name_1', 'event_participant_id_1', 'expense_item_id_1');
+INSERT INTO event_expense (event_expense_id, event_expense_name, event_participant_id, event_expense_item_id) VALUES ('expense_id_1', 'event_expense_name_1', 'event_participant_id_1', 'expense_item_id_1');
+INSERT INTO event_expense (event_expense_id, event_expense_name, event_participant_id, event_expense_item_id) VALUES ('expense_id_1', 'event_expense_name_1', 'event_participant_id_1', 'expense_item_id_1');
+
 INSERT INTO event_expense (event_expense_id, event_expense_name, event_participant_id, event_expense_item_id) VALUES ('expense_id_2', 'event_expense_name_2', 'event_participant_id_1', 'expense_item_id_1');
 INSERT INTO event_expense (event_expense_id, event_expense_name, event_participant_id, event_expense_item_id) VALUES ('expense_id_3', 'event_expense_name_3', 'event_participant_id_1', 'expense_item_id_1');
 

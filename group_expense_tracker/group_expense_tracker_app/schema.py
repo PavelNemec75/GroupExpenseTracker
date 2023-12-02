@@ -1,5 +1,8 @@
+from datetime import datetime
+
 import strawberry
 from typing import List
+from typing import Optional
 from .models import Event, Participant, EventParticipant, EventExpenseItem, EventExpenseGroup
 from .types import EventType, ParticipantType, EventParticipantType, EventExpenseItemType, EventExpenseGroupType
 
@@ -29,11 +32,57 @@ class Query:
 
 @strawberry.type
 class Mutation:
+
     @strawberry.mutation
-    def create_event(self, event_name: str) -> EventType:
-        event = Event(event_name=event_name)
-        event.save()
-        return event
+    def create_event(
+        self,
+        event_name: str,
+        event_start_date: Optional[datetime] = None,
+        event_end_date: Optional[datetime] = None,
+        event_created_at: Optional[datetime] = None,
+    ) -> EventType:
+        existing_event = Event.objects.filter(event_name=event_name).first()
+        if existing_event:
+            raise ValueError(f"Event with name \"{event_name}\"already exists.")
+
+        new_event = Event(
+            event_name=event_name,
+            event_start_date=event_start_date,
+            event_end_date=event_end_date,
+            event_created_at=event_created_at,
+        )
+        new_event.save()
+
+        return EventType(
+            event_id=new_event.event_id,
+            event_name=new_event.event_name,
+            event_start_date=new_event.event_start_date,
+            event_end_date=new_event.event_end_date,
+            event_created_at=new_event.event_created_at,
+        )
+
+
+
+    # @strawberry.mutation
+    # def create_event(self, event_name: str) -> EventType:
+    #     event = Event(event_name=event_name)
+    #     event.save()
+    #     return event
+
+
+    # @strawberry.mutation
+    # def create_event(self, event_name: str) -> EventType:
+    #     new_event = Event(event_name=event_name)
+    #     new_event.save()
+    #     return EventType(event_id=new_event.event_id, event_name=new_event.event_name)
+
+
+    # @mutation.field
+    # @strawberry.mutation
+    # def create_event(self, event_name: str) -> Event.event_id:
+    #     new_event = Event(event_name=event_name)
+    #     new_event.save()
+    #     return new_event.event_id
 
     @strawberry.mutation
     def create_participant(self, participant_email: str) -> ParticipantType:
