@@ -1,16 +1,33 @@
 
 
-
-mutation CreateEvents {
-  createEvent(eventName: "event5", eventStartDate: "2023-12-01", eventEndDate: "2023-12-02") {
+mutation CreateEvent {
+  createEvent(
+    eventName: "event1"
+    eventStartDate: "2023-12-01"
+    eventEndDate: "2023-12-02"
+  ) {
     eventId
     eventCreatedAt
   }
+
 }
 
-mutation CreateParticipants {
-  createParticipant(participantEmail: "participant8@example.com") {
+mutation DeleteEvent {
+  deleteEvent(eventId: "36f97653-eceb-41ec-805c-420ca88947aa")
+}
+
+
+
+mutation CreateParticipant {
+  createParticipant(participantEmail: "test2@example.com") {
     participantId
-    participantCreatedAt
   }
+}
+
+mutation DeleteParticipantById {
+  deleteParticipant(participantId: "0ffdf23d-d530-49e1-9f71-05176d8f727c")
+}
+
+mutation DeleteParticipantByEmail {
+  deleteParticipant(participantEmail: "test2@example.com")
 }

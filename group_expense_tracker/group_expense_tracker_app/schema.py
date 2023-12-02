@@ -7,6 +7,7 @@ from .models import Event, Participant, EventParticipant, EventExpenseItem, Even
 from .types import EventType, ParticipantType, EventParticipantType, EventExpenseItemType, EventExpenseGroupType
 from django.core.exceptions import ObjectDoesNotExist
 
+
 @strawberry.type
 class Query:
     @strawberry.field
@@ -80,7 +81,6 @@ class Mutation:
 
         return True
 
-
     @strawberry.mutation
     def create_participant(
             self,
@@ -104,21 +104,27 @@ class Mutation:
     @strawberry.mutation
     def delete_participant(
             self,
+            # participant_id: strawberry.ID,
             participant_id: Optional[strawberry.ID] = None,
             participant_email: Optional[str] = None,
     ) -> bool:
         if not participant_id and not participant_email:
             raise ValueError("Either participant_id or participant_email must be provided.")
 
+        # try:
+        #     participant = Participant.objects.get(participant_id=participant_id)
+        # except ObjectDoesNotExist as err:
+        #     raise ValueError("Participant not found.") from err
+
         participant = None
 
-        if participant_id:
-            participant = Participant.objects.get(participant_id=participant_id)
-        elif participant_email:
-            participant = Participant.objects.get(participant_email=participant_email)
-
-        if not participant:
-            raise ValueError("Participant not found.")
+        try:
+            if participant_id:
+                participant = Participant.objects.get(participant_id=participant_id)
+            elif participant_email:
+                participant = Participant.objects.get(participant_email=participant_email)
+        except ObjectDoesNotExist as err:
+            raise ValueError("Participant not found.") from err
 
         expense_group_exists = EventExpenseGroup.objects.filter(
             event_participant__participant=participant,
@@ -127,8 +133,8 @@ class Mutation:
         if expense_group_exists:
             raise ValueError("Cannot delete Participant with associated EventExpenseGroup records.")
 
-        return participant.delete()
-
+        participant.delete()
+        return True
 
     @strawberry.mutation
     def add_event_participant(self, event_id: str, participant_id: str) -> EventParticipantType:
