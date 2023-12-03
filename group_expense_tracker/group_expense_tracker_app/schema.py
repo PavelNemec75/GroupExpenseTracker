@@ -293,10 +293,22 @@ class Mutation:
         except Exception as err:
             raise ValueError("Event expense group not found.") from err
 
+        event_expense_item_id_to_delete = next(
+            iter(expense_group_to_delete.values_list("event_expense_item_id", flat=True)), None)
+
+        event_expense_items_to_delete = EventExpenseItem.objects.filter(
+            event_expense_item_id=event_expense_item_id_to_delete)
+
         with transaction.atomic():
-            """ delete all records from event_expense_group """
+
+            """ delete all records from event_expense_group table """
             for expense_group in expense_group_to_delete:
                 expense_group.delete()
+
+            """ delete all records from event_expense_item table """
+            for event_expense_item in event_expense_items_to_delete:
+                event_expense_item.delete()
+
         return True
 
 
