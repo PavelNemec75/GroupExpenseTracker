@@ -1,1 +1,1 @@
-python manage.py flush
+rem python manage.py flush

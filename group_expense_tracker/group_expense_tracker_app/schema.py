@@ -13,7 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 @strawberry.input
-class ParticipantInput:
+class EventParticipantInput:
     event_participant_id: str
     paid_eur: float
 
@@ -22,7 +22,7 @@ class ParticipantInput:
 class CreateEventExpenseGroupInput:
     event_expense_item_name: str
     event_expense_item_price_eur: float
-    participants: List[ParticipantInput]
+    participants: List[EventParticipantInput]
 
 
 @strawberry.type
@@ -226,9 +226,10 @@ class Mutation:
     def create_event_expense_group(self, input: CreateEventExpenseGroupInput) -> CreateEventExpenseGroupOutput:
 
         """ get last created event """
-        last_created_event = Event.objects.order_by('-event_created_at').first()
+        last_created_event_id = Event.objects.order_by('-event_created_at').first().event_id
 
-        if last_created_event is None:
+        """ check if there is at least one event """
+        if last_created_event_id is None:
             raise ValueError("No events found. Cannot create EventExpenseGroup without an event.")
 
         """ get list of event_participants from mutation query """
@@ -267,7 +268,6 @@ class Mutation:
             new_event_expense_group_id = str(uuid.uuid4())
 
             for participant_input in input.participants:
-                # event_participant = EventParticipant.objects.get(pk=participant_input.event_participant_id)
                 event_expense_group = EventExpenseGroup.objects.create(  # noqa: F841
                     event_expense_group_id=new_event_expense_group_id,
                     paid_eur=participant_input.paid_eur,
