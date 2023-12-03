@@ -10,7 +10,7 @@ mutation DeleteEvent {
 }
 
 mutation CreateParticipant {
-  createParticipant(participantEmail: "test2@example.com") {
+  createParticipant(participantEmail: "test2@example.com", participantFirstName: "first name", participantLastName: "last_name") {
     participantId
   }
 }
@@ -34,6 +34,8 @@ query GetParticipants {
   getParticipants {
     participantId
     participantEmail
+    participantFirstName
+    participantLastName
   }
 }
 
@@ -46,26 +48,18 @@ mutation AddParticipantToEvent {
   }
 }
 
-
-# mutation DeleteParticipantFromEvent {
-#   deleteParticipantFromEvent(eventId: "", participantId: "")
-# }
-
-
 mutation DeleteParticipantFromEvent {
-  deleteParticipantFromEvent(eventId: "your_event_id", participantId: "your_participant_id")
+  deleteParticipantFromEvent(
+    eventId: "your_event_id"
+    participantId: "your_participant_id"
+  )
 }
-
-
-
 
 query GetEventParticipants {
   getEventParticipants(eventId: "dbbdaaf9-0dfa-42a8-8e65-1432e4eae35d") {
-      eventParticipantId
+    eventParticipantId
   }
 }
-
-
 
 query GetEventParticipants2 {
   getEventParticipants(eventId: "aeedfa7d-1a03-4147-aa56-22126dee230a") {
@@ -85,8 +79,3 @@ query GetEventParticipants2 {
     eventParticipantRegisteredAt
   }
 }
-
-
-
-
-

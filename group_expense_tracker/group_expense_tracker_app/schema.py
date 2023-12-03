@@ -7,7 +7,6 @@ from .models import Event, Participant, EventParticipant, EventExpenseItem, Even
 from .types import EventType, ParticipantType, EventParticipantType, EventExpenseItemType, EventExpenseGroupType
 from django.core.exceptions import ObjectDoesNotExist
 
-
 @strawberry.type
 class Query:
 
@@ -101,6 +100,8 @@ class Mutation:
     def create_participant(
             self,
             participant_email: str,
+            participant_first_name: str,
+            participant_last_name: str,
     ) -> ParticipantType:
         existing_participant = Participant.objects.filter(participant_email=participant_email).first()
         if existing_participant:
@@ -108,12 +109,16 @@ class Mutation:
 
         new_participant = Participant(
             participant_email=participant_email,
+            participant_first_name=participant_first_name,
+            participant_last_name=participant_last_name,
         )
         new_participant.save()
 
         return ParticipantType(
             participant_created_at=new_participant.participant_created_at,
             participant_email=new_participant.participant_email,
+            participant_first_name=new_participant.participant_first_name,
+            participant_last_name=new_participant.participant_last_name,
             participant_id=new_participant.participant_id,
         )
 
@@ -175,18 +180,13 @@ class Mutation:
             event=event_to_add,
         )
 
-    @strawberry.type
-    class DeleteParticipantFromEventResult:
-        success: bool
-        deleted_event_participant: Optional[EventParticipantType] = None
 
     @strawberry.mutation
     def delete_participant_from_event(
             self,
             event_id: str,
             participant_id: str,
-    # ) -> EventParticipantType:
-    ) -> DeleteParticipantFromEventResult:
+    ) -> bool:
 
         try:
             event_participant = EventParticipant.objects.get(

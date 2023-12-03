@@ -17,6 +17,8 @@ class EventType:
 class ParticipantType:
     participant_id: str
     participant_email: str
+    participant_first_name: str
+    participant_last_name: str
     participant_created_at: datetime
 
 

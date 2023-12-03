@@ -29,6 +29,8 @@ class Event(models.Model):
 class Participant(models.Model):
     participant_id = models.TextField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
     participant_email = models.EmailField(blank=False, unique=True)
+    participant_first_name = models.TextField(blank=False)
+    participant_last_name = models.TextField(blank=False)
     participant_created_at = models.DateTimeField(auto_now_add=True)
 
     def delete(self, *args, **kwargs):
