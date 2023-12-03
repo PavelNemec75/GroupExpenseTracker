@@ -277,8 +277,27 @@ class Mutation:
                 event_expense_groups.append(event_expense_group)
 
         return CreateEventExpenseGroupOutput(event_expense_group_id=new_event_expense_group_id)
-        # return event_expense_groups
-        # return new_event_expense_group_id
+
+    @strawberry.mutation
+    def delete_expense_group(
+            self,
+            event_expense_group_id: str,
+    ) -> bool:
+
+        """ check if event expense group exists """
+        try:
+            expense_group_to_delete = EventExpenseGroup.objects.filter(event_expense_group_id=event_expense_group_id)
+            """ find if at least one record exits """
+            if not expense_group_to_delete.exists():
+                raise ValueError("Event expense group not found.")  # noqa: TRY301
+        except Exception as err:
+            raise ValueError("Event expense group not found.") from err
+
+        with transaction.atomic():
+            """ delete all records from event_expense_group """
+            for expense_group in expense_group_to_delete:
+                expense_group.delete()
+        return True
 
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)

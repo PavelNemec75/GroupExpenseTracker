@@ -6,6 +6,7 @@ nikdo mi s resenim neradil, jen google a chatgpt :-)
 verze neresi:
 
 - frontend
+- zaokrouhlovani
 - komunikaci emailem
 - *** autentikaci - google, django all-auth?
 - autentikaci pres vice provideru
@@ -21,7 +22,7 @@ zde by sla pridat dalsi logika - napr. lze smazat pokud je jeho bilance nulova a
 - validace emailove adresy
 - nezobrazovat detailni chybove hlasky v produkcnim rezimu
 - komentare v kodu
-- zprovoznit debug toolbar
+- zprovoznit debug toolbar - ladeni ORM - SQL
 - lepsi osetreni chyb misto raise ValueError vytvorit response objekty a vracet
 - logika v models i schema - lepsi by bylo to sjednotit na jedno misto.?
 - rozdeleni schema a mozna i models do vice souboru - prilis hodne radku.? 
