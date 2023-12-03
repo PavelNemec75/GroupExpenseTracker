@@ -16,3 +16,5 @@ zde by sla pridat dalsi logika - napr. lze smazat pokud je jeho bilance nulova a
 - validace emailove adresy
 - nezobrazovat detailni chybove hlasky v produkcnim rezimu
 - komentare v kodu
+- zprovoznit debug toolbar
+- lepsi osetreni chyb misto raise ValueError

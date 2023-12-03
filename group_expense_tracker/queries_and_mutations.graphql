@@ -1,0 +1,92 @@
+mutation CreateEvent {
+  createEvent(eventName: "event2") {
+    eventId
+    eventCreatedAt
+  }
+}
+
+mutation DeleteEvent {
+  deleteEvent(eventId: "2eae7ada-6de8-4bef-b05c-9689983f44b4")
+}
+
+mutation CreateParticipant {
+  createParticipant(participantEmail: "test2@example.com") {
+    participantId
+  }
+}
+
+mutation DeleteParticipantById {
+  deleteParticipant(participantId: "041a9c55-a86f-45ab-8f50-5c7a49141e09")
+}
+
+mutation DeleteParticipantByEmail {
+  deleteParticipant(participantEmail: "test1@example.com")
+}
+
+query GetEvents {
+  getEvents {
+    eventId
+    eventName
+  }
+}
+
+query GetParticipants {
+  getParticipants {
+    participantId
+    participantEmail
+  }
+}
+
+mutation AddParticipantToEvent {
+  addParticipantToEvent(
+    eventId: "dbbdaaf9-0dfa-42a8-8e65-1432e4eae35d"
+    participantId: "b11b812d-24bb-4b29-82b1-590952b0f5e7"
+  ) {
+    eventParticipantId
+  }
+}
+
+
+# mutation DeleteParticipantFromEvent {
+#   deleteParticipantFromEvent(eventId: "", participantId: "")
+# }
+
+
+mutation DeleteParticipantFromEvent {
+  deleteParticipantFromEvent(eventId: "your_event_id", participantId: "your_participant_id")
+}
+
+
+
+
+query GetEventParticipants {
+  getEventParticipants(eventId: "dbbdaaf9-0dfa-42a8-8e65-1432e4eae35d") {
+      eventParticipantId
+  }
+}
+
+
+
+query GetEventParticipants2 {
+  getEventParticipants(eventId: "aeedfa7d-1a03-4147-aa56-22126dee230a") {
+    eventParticipantId
+    event {
+      eventId
+      eventName
+      eventStartDate
+      eventEndDate
+      eventCreatedAt
+    }
+    participant {
+      participantId
+      participantEmail
+      participantCreatedAt
+    }
+    eventParticipantRegisteredAt
+  }
+}
+
+
+
+
+

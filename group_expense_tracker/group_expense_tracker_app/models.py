@@ -31,16 +31,16 @@ class Participant(models.Model):
     participant_email = models.EmailField(blank=False, unique=True)
     participant_created_at = models.DateTimeField(auto_now_add=True)
 
-    # def delete(self, *args, **kwargs):
-    #     with transaction.atomic():
-    #         expense_group_exists = EventExpenseGroup.objects.filter(
-    #             event_participant__event=self,
-    #         ).exists()
-    #         if expense_group_exists:
-    #             raise ValueError("Cannot delete Participant with associated EventExpenseGroup records.")
-    #         # EventParticipant.objects.filter(participant=self).delete()
-    #         super().delete(*args, **kwargs)
-    #     return True
+    def delete(self, *args, **kwargs):
+        with transaction.atomic():
+            # expense_group_exists = EventExpenseGroup.objects.filter(
+            #     event_participant__event=self,
+            # ).exists()
+            # if expense_group_exists:
+            #     raise ValueError("Cannot delete Participant with associated EventExpenseGroup records.")
+            # EventParticipant.objects.filter(participant=self).delete()
+            super().delete(*args, **kwargs)
+        return True
 
     def __str__(self):
         return self.participant_email
@@ -51,6 +51,11 @@ class EventParticipant(models.Model):
     participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     event_participant_registered_at = models.DateTimeField(auto_now_add=True)
+
+    def delete(self, *args, **kwargs):
+        with transaction.atomic():
+            super().delete(*args, **kwargs)
+        return True
 
     def __str__(self):
         return f"{self.participant} in {self.event}"
@@ -73,3 +78,5 @@ class EventExpenseGroup(models.Model):
 
     def __str__(self):
         return f"{self.event_participant} - {self.event_expense_item}"
+
+

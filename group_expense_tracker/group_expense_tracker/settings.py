@@ -27,6 +27,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
 
 # Application definition
 
@@ -41,6 +44,10 @@ INSTALLED_APPS = [
     'group_expense_tracker_app',
     # Third party apps
     'strawberry',
+    # Debugging
+    # 'debug_toolbar',
+    # 'graphiql_strawberry_debug_toolbar',
+
 
 ]
 
@@ -52,6 +59,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'graphiql_strawberry_debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'group_expense_tracker.urls'
