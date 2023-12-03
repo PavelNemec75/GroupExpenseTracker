@@ -8,7 +8,10 @@ from typing import Optional
 from django.db import transaction
 
 from .models import Event, Participant, EventParticipant, EventExpenseItem, EventExpenseGroup
-from .types import EventType, ParticipantType, EventParticipantType, EventExpenseItemType, EventExpenseGroupType
+from .types import (
+    EventType, JoinedTypes, ParticipantType, EventParticipantType, EventExpenseItemType,
+    EventExpenseGroupType,
+)
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -40,6 +43,153 @@ class Query:
     @strawberry.field
     def get_participants(self) -> List[ParticipantType]:
         return list(Participant.objects.all())
+
+    @strawberry.field
+    def get_all_event_participants(self) -> List[EventParticipantType]:
+        return EventParticipant.objects.select_related('participant', 'event').all()
+
+    # @strawberry.field
+    # def get_event_expense_items_and_event_participants(
+
+    # @strawberry.field
+    # def get_expense_items_for_event(
+    #     self, event_id: strawberry.ID
+    # ) -> List[EventExpenseItemType]:
+    #     if not event_id:
+    #         raise ValueError("Parameter 'event_id' is required.")
+    #
+    #     expense_items = EventExpenseItem.objects.filter(
+    #         event_expense_groups__event_participant__event__event_id=event_id
+    #     ).distinct()
+    #
+    #     return [
+    #         EventExpenseItemType(
+    #             event_expense_item_id=item.event_expense_item_id,
+    #             event_expense_item_name=item.event_expense_item_name,
+    #             event_expense_item_price_eur=item.event_expense_item_price_eur,
+    #             event_participant_id=item.event_expense_groups.first().event_participant_id,
+    #             participant_id=item.event_expense_groups.first().event_participant.participant.participant_id,
+    #             participant_email=item.event_expense_groups.first().event_participant.participant.participant_email,
+    #             event_name=item.event_expense_groups.first().event_participant.event.event_name,  # přidáme event_name
+    #         )
+    #         for item in expense_items
+    #     ]
+
+    # @strawberry.field
+    # def get_joined_data(self, event_id: strawberry.ID) -> List[JoinedTypes]:
+    #     if not event_id:
+    #         raise ValueError("Parameter 'event_id' is required.")
+    #
+    #     event_data = Event.objects.filter(event_id=event_id)
+    #
+    #     if not event_data:
+    #         raise ValueError(f"No data found for event_id: {event_id}")
+    #
+    #     event_participant_data = EventParticipant.objects.filter(event_id=event_id)
+    #
+    #     if not event_participant_data:
+    #         raise ValueError(f"No data found for event_id: {event_id}")
+    #
+    #     participant_data = Participant.objects.filter(
+    #         pk__in=event_participant_data.values_list("participant_id", flat=True)
+    #     )
+    #
+    #     event_expense_item_data = EventExpenseItem.objects.filter(
+    #         eventexpensegroup__event_participant__event__event_id=event_id
+    #     )
+    #
+    #     if not event_expense_item_data:
+    #         raise ValueError(f"No expense item data found for event_id: {event_id}")
+    #
+    #     event_expense_group_data = EventExpenseGroup.objects.filter(
+    #         event_participant=event_participant_data,
+    #         event_expense_item=event_expense_item_data
+    #     ).first()
+    #
+    #     if not event_expense_group_data:
+    #         raise ValueError(f"No expense group data found for event_id: {event_id}")
+    #
+    #     return [
+    #         JoinedTypes(
+    #             event=event_data,
+    #             participant=participant_data,
+    #             event_participant=event_participant_data,
+    #             event_expense_item=event_expense_item_data,
+    #             event_expense_group=event_expense_group_data,
+    #         )
+    #     ]
+
+    @strawberry.field
+    def get_joined_data(self, event_id: str) -> JoinedTypes:
+        event_data = Event.objects.filter(event_id=event_id).first()
+        event_participant_data = EventParticipant.objects.select_related(
+            'participant',
+            'event',
+        ).filter(event_id=event_id).first()
+
+        if not event_participant_data:
+            return None
+
+        expense_group_data = EventExpenseGroup.objects.select_related(
+            'event_participant__participant',
+            'event_expense_item',
+        ).filter(event_participant_id=event_participant_data.event_participant_id).first()
+
+        expense_item_data = EventExpenseItem.objects.filter(
+            # event_expense_group_id=expense_group_data.event_expense_group_id
+            eventexpensegroup__event_participant__event__event_id=event_id,
+        )
+
+        return JoinedTypes(
+            event=event_data,
+            participant=event_participant_data.participant,
+            event_participant=event_participant_data,
+            event_expense_item=expense_item_data,
+            event_expense_group=expense_group_data,
+        )
+
+    @strawberry.field
+    def get_all_data(self) -> List[EventExpenseGroupType]:
+        query_set = EventExpenseGroup.objects.all().select_related(
+            'event_participant',
+            'event_expense_item',
+            'event_participant__participant',
+            'event_participant__event',
+        )
+
+        result_list = []
+        for eg in query_set:
+            result_list.append(  # noqa: PERF401
+                EventExpenseGroupType(
+                    event_expense_group_id=eg.event_expense_group_id,
+                    event_participant=EventParticipantType(
+                        event_participant_id=eg.event_participant.event_participant_id,
+                        participant=ParticipantType(
+                            participant_id=eg.event_participant.participant.participant_id,
+                            participant_email=eg.event_participant.participant.participant_email,
+                            participant_first_name=eg.event_participant.participant.participant_first_name,
+                            participant_last_name=eg.event_participant.participant.participant_last_name,
+                            participant_created_at=str(eg.event_participant.participant.participant_created_at),
+                        ),
+                        event=EventType(
+                            event_id=eg.event_participant.event.event_id,
+                            event_name=eg.event_participant.event.event_name,
+                            event_start_date=str(eg.event_participant.event.event_start_date),
+                            event_end_date=str(eg.event_participant.event.event_end_date),
+                            event_created_at=str(eg.event_participant.event.event_created_at),
+                        ),
+                        event_participant_registered_at=str(eg.event_participant.event_participant_registered_at),
+                    ),
+                    event_expense_item=EventExpenseItemType(
+                        event_expense_item_id=eg.event_expense_item.event_expense_item_id,
+                        event_expense_item_name=eg.event_expense_item.event_expense_item_name,
+                        event_expense_item_price_eur=float(eg.event_expense_item.event_expense_item_price_eur),
+                    ),
+                    paid_eur=float(eg.paid_eur),
+                ),
+            )
+
+        return result_list
 
     @strawberry.field
     def get_event_participants(

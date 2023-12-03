@@ -94,3 +94,23 @@ mutation CreateEventExpenseGroup {
     }
   )
 }
+
+
+mutation DeleteEventExpenseGroup {
+  deleteExpenseGroup(eventExpenseGroupId: "7538cc35-a2ae-460f-aef2-a9d7935afccd")
+}
+
+
+query GetAllEventsAndParticipants {
+  getAllEventParticipants {
+    event {
+      eventId
+      eventName
+    }
+    participant {
+      participantEmail
+      participantFirstName
+      participantLastName
+    }
+  }
+}

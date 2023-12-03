@@ -43,3 +43,12 @@ class EventExpenseGroupType:
     event_participant: EventParticipantType
     event_expense_item: EventExpenseItemType
     paid_eur: float
+
+
+@strawberry.type
+class JoinedTypes:
+    event: EventType
+    participant: ParticipantType
+    event_participant: EventParticipantType
+    event_expense_item: EventExpenseItemType
+    event_expense_group: EventExpenseGroupType

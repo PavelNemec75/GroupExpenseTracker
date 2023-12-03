@@ -12,13 +12,6 @@ class Event(models.Model):
 
     def delete(self, *args, **kwargs):
         with transaction.atomic():
-            # expense_group_ids = EventExpenseGroup.objects.filter(
-            #     event_participant__event=self).values_list('event_expense_group_id', flat=True,
-            #                                                )
-            # EventExpenseItem.objects.filter(event_expense_group__event_participant__event=self).delete()
-            # EventExpenseItem.objects.filter(event_expense_item_id__in=event_expense_item_id).delete()
-            # EventExpenseGroup.objects.filter(event_participant__event=self).delete()
-            # EventParticipant.objects.filter(event=self).delete()
             super().delete(*args, **kwargs)
         return True
 
@@ -35,12 +28,6 @@ class Participant(models.Model):
 
     def delete(self, *args, **kwargs):
         with transaction.atomic():
-            # expense_group_exists = EventExpenseGroup.objects.filter(
-            #     event_participant__event=self,
-            # ).exists()
-            # if expense_group_exists:
-            #     raise ValueError("Cannot delete Participant with associated EventExpenseGroup records.")
-            # EventParticipant.objects.filter(participant=self).delete()
             super().delete(*args, **kwargs)
         return True
 
