@@ -1,14 +1,19 @@
 # GroupExpenseTracker
 
+nikdy jsem nepracoval s Django, ORM a Graphql.
+nikdo mi s resenim neradil, jen google a chatgpt :-)
+
 verze neresi:
 
 - frontend
 - komunikaci emailem
-- *** autentikaci - google?
+- *** autentikaci - google, django all-auth?
 - autentikaci pres vice provideru
-- *** vykonnost databaze - indexy
 - *** strawberry dataloadery
 - *** docker compose - zvlast kontejner pro django aplikaci a zvlast volume pro db
+- skalovani
+- *** vykonnost databaze - indexy
+- *** strankovani
 - autorizaci
 - lokalizaci
 - nelze smazat participant pokud ma zaznam v event_expense_group
@@ -17,4 +22,6 @@ zde by sla pridat dalsi logika - napr. lze smazat pokud je jeho bilance nulova a
 - nezobrazovat detailni chybove hlasky v produkcnim rezimu
 - komentare v kodu
 - zprovoznit debug toolbar
-- lepsi osetreni chyb misto raise ValueError
+- lepsi osetreni chyb misto raise ValueError vytvorit response objekty a vracet
+- logika v models i schema - lepsi by bylo to sjednotit na jedno misto.?
+- rozdeleni schema a mozna i models do vice souboru - prilis hodne radku.? 
