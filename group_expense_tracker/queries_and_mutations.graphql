@@ -79,3 +79,18 @@ query GetEventParticipants2 {
     eventParticipantRegisteredAt
   }
 }
+
+
+mutation CreateEventExpenseGroup {
+  createEventExpenseGroup(
+    input: {
+      eventExpenseItemName: "Pizza",
+      eventExpenseItemPriceEur: 4.5,
+      participants: [
+        { eventParticipantId: "c50224c5-ea99-46c9-9079-04ff7e3f30d1", paidEur: 4.5 },
+        { eventParticipantId: "6dc008e8-a362-4360-abe9-774badc68771", paidEur: 0 },
+        { eventParticipantId: "80b83185-0f43-4cf0-a194-65ac92444ad5", paidEur: 0 }
+      ]
+    }
+  )
+}

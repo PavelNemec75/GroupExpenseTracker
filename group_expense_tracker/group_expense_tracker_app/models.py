@@ -73,7 +73,7 @@ class EventExpenseItem(models.Model):
 
 
 class EventExpenseGroup(models.Model):
-    event_expense_group_id = models.TextField(primary_key=True, default=uuid.uuid4, editable=False)
+    event_expense_group_id = models.TextField(editable=False)
     event_participant = models.ForeignKey(EventParticipant, on_delete=models.CASCADE)
     event_expense_item = models.ForeignKey(EventExpenseItem, on_delete=models.CASCADE)
     paid_eur = models.DecimalField(max_digits=10, decimal_places=2, default=0)

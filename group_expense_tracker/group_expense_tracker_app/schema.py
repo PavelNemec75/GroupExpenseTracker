@@ -26,6 +26,11 @@ class CreateEventExpenseGroupInput:
 
 
 @strawberry.type
+class CreateEventExpenseGroupOutput:
+    event_expense_group_id: str
+
+
+@strawberry.type
 class Query:
 
     @strawberry.field
@@ -218,7 +223,7 @@ class Mutation:
         return event_participant.delete()
 
     @strawberry.mutation
-    def create_event_expense_group(self, input: CreateEventExpenseGroupInput) -> str:
+    def create_event_expense_group(self, input: CreateEventExpenseGroupInput) -> CreateEventExpenseGroupOutput:
 
         """ get last created event """
         last_created_event = Event.objects.order_by('-event_created_at').first()
@@ -258,7 +263,7 @@ class Mutation:
                 event_expense_item_price_eur=input.event_expense_item_price_eur,
             )
 
-            # event_expense_groups = []
+            event_expense_groups = []
             new_event_expense_group_id = str(uuid.uuid4())
 
             for participant_input in input.participants:
@@ -269,10 +274,11 @@ class Mutation:
                     event_expense_item_id=new_event_expense_item_id,
                     event_participant_id=participant_input.event_participant_id,
                 )
-                # event_expense_groups.append(event_expense_group)
+                event_expense_groups.append(event_expense_group)
 
+        return CreateEventExpenseGroupOutput(event_expense_group_id=new_event_expense_group_id)
         # return event_expense_groups
-        return new_event_expense_group_id
+        # return new_event_expense_group_id
 
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)
