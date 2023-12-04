@@ -1,7 +1,7 @@
 import strawberry
 from . import models
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 
 @strawberry.django.type(models.Event)
@@ -48,7 +48,7 @@ class EventExpenseGroupType:
 @strawberry.type
 class JoinedTypes:
     event: EventType
-    participant: ParticipantType
-    event_participant: EventParticipantType
-    event_expense_item: EventExpenseItemType
-    event_expense_group: EventExpenseGroupType
+    participant: List[ParticipantType]
+    event_participant: List[EventParticipantType]
+    # event_expense_item: EventExpenseItemType
+    event_expense_group: List[EventExpenseGroupType]
