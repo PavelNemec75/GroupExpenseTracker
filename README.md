@@ -1,8 +1,5 @@
 # GroupExpenseTracker
 
-nikdy jsem nepracoval s Django, ORM a Graphql.
-nikdo mi s resenim neradil, jen google a chatgpt :-)
-
 verze neresi:
 
 - frontend

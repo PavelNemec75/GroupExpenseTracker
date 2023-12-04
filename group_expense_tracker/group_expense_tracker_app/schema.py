@@ -91,48 +91,6 @@ class Query:
             event_expense_group=list(expense_group_data),
         )
 
-    @strawberry.field
-    def get_all_data(self) -> List[EventExpenseGroupType]:
-        query_set = EventExpenseGroup.objects.all().select_related(
-            'event_participant',
-            'event_expense_item',
-            'event_participant__participant',
-            'event_participant__event',
-        )
-
-        result_list = []
-        for eg in query_set:
-            result_list.append(  # noqa: PERF401
-                EventExpenseGroupType(
-                    event_expense_group_id=eg.event_expense_group_id,
-                    event_participant=EventParticipantType(
-                        event_participant_id=eg.event_participant.event_participant_id,
-                        participant=ParticipantType(
-                            participant_id=eg.event_participant.participant.participant_id,
-                            participant_email=eg.event_participant.participant.participant_email,
-                            participant_first_name=eg.event_participant.participant.participant_first_name,
-                            participant_last_name=eg.event_participant.participant.participant_last_name,
-                            participant_created_at=str(eg.event_participant.participant.participant_created_at),
-                        ),
-                        event=EventType(
-                            event_id=eg.event_participant.event.event_id,
-                            event_name=eg.event_participant.event.event_name,
-                            event_start_date=str(eg.event_participant.event.event_start_date),
-                            event_end_date=str(eg.event_participant.event.event_end_date),
-                            event_created_at=str(eg.event_participant.event.event_created_at),
-                        ),
-                        event_participant_registered_at=str(eg.event_participant.event_participant_registered_at),
-                    ),
-                    event_expense_item=EventExpenseItemType(
-                        event_expense_item_id=eg.event_expense_item.event_expense_item_id,
-                        event_expense_item_name=eg.event_expense_item.event_expense_item_name,
-                        event_expense_item_price_eur=float(eg.event_expense_item.event_expense_item_price_eur),
-                    ),
-                    paid_eur=float(eg.paid_eur),
-                ),
-            )
-
-        return result_list
 
     @strawberry.field
     def get_event_participants(
