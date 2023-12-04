@@ -50,5 +50,5 @@ class JoinedTypes:
     event: EventType
     participant: List[ParticipantType]
     event_participant: List[EventParticipantType]
-    # event_expense_item: EventExpenseItemType
+    event_expense_item: List[EventExpenseItemType]
     event_expense_group: List[EventExpenseGroupType]

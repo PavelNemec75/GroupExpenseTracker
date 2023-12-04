@@ -79,15 +79,15 @@ class Query:
         ##     'event_expense_item',
         ## ).filter(event_participant__event__event_id=event_id)
 
-        # expense_item_data = EventExpenseItem.objects.filter(
-        #     eventexpensegroup__event_participant__event__event_id=event_id,
-        # )
+        expense_item_data = EventExpenseItem.objects.filter(
+            eventexpensegroup__event_participant__event__event_id=event_id,
+        )
 
         return JoinedTypes(
             event=event_data,
             participant=list(participant_data),
             event_participant=list(event_participant_data),
-            # event_expense_item=expense_item_data,
+            event_expense_item=list(expense_item_data),
             event_expense_group=list(expense_group_data),
         )
 
