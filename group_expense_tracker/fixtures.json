@@ -5,89 +5,177 @@
 
     {
         "model": "group_expense_tracker_app.Event",
-        "pk": "16109bc0-cea2-4aba-9bd3-c6a32bc0e6a0",
+        "pk": "1",
         "fields": {
-            "event_name": "Trip to Montana",
-            "event_start_date": null,
-            "event_end_date": null,
-            "event_created_at": "2023-01-01T00:00:00Z"
+            "name": "Trip to Montana",
+            "start_date": null,
+            "end_date": null,
+            "created_at": "2023-01-01T00:00:00Z"
         }
     },
 
     {
         "model": "group_expense_tracker_app.Event",
-        "pk": "1ff70029-583d-4dc9-8bf6-279492a306a5",
+        "pk": "2",
         "fields": {
-            "event_name": "Olivia's Birthday party",
-            "event_start_date": null,
-            "event_end_date": null,
-            "event_created_at": "2023-01-01T00:00:00Z"
+            "name": "Olivia's Birthday party",
+            "start_date": null,
+            "end_date": null,
+            "created_at": "2023-01-01T00:00:00Z"
         }
     },
 
     {
         "model": "group_expense_tracker_app.Event",
-        "pk": "26fc537f-a864-4441-9356-325c289621a0",
+        "pk": "3",
         "fields": {
-            "event_name": "Car sharing",
-            "event_start_date": null,
-            "event_end_date": null,
-            "event_created_at": "2023-01-01T00:00:00Z"
+            "name": "Car sharing",
+            "start_date": null,
+            "end_date": null,
+            "created_at": "2023-01-01T00:00:00Z"
+        }
+    },
+
+
+
+
+
+    {
+        "model": "group_expense_tracker_app.Participant",
+        "pk": "1",
+        "fields": {
+            "email": "paul.miller@example.com",
+            "first_name": "Paul",
+            "last_name": "Miller",
+            "created_at": "2023-01-01T00:00:00Z"
         }
     },
 
     {
         "model": "group_expense_tracker_app.Participant",
-        "pk": "4521831c-eaf1-4ca5-b604-08735ea98f0b",
+        "pk": "2",
         "fields": {
-            "participant_email": "paul.miller@example.com",
-            "participant_first_name": "Paul",
-            "participant_last_name": "Miller",
-            "participant_created_at": "2023-01-01T00:00:00Z"
+            "email": "olivia.johnson@example.com",
+            "first_name": "Olivia",
+            "last_name": "Johnson",
+            "created_at": "2023-01-01T00:00:00Z"
         }
     },
 
     {
         "model": "group_expense_tracker_app.Participant",
-        "pk": "c836d0a4-5bf0-4b10-a6de-dc092d4bf93b",
+        "pk": "3",
         "fields": {
-            "participant_email": "olivia.johnson@example.com",
-            "participant_first_name": "Olivia",
-            "participant_last_name": "Johnson",
-            "participant_created_at": "2023-01-01T00:00:00Z"
+            "email": "noah.williams@example.com",
+            "first_name": "Noah",
+            "last_name": "Williams",
+            "created_at": "2023-01-01T00:00:00Z"
         }
     },
 
     {
         "model": "group_expense_tracker_app.Participant",
-        "pk": "a221c18a-b25a-425a-995f-c51de994c411",
+        "pk": "4",
         "fields": {
-            "participant_email": "noah.williams@example.com",
-            "participant_first_name": "Noah",
-            "participant_last_name": "Williams",
-            "participant_created_at": "2023-01-01T00:00:00Z"
+            "email": "liam.smith@example.com",
+            "first_name": "Liam",
+            "last_name": "Smith",
+            "created_at": "2023-01-01T00:00:00Z"
         }
     },
 
     {
         "model": "group_expense_tracker_app.Participant",
-        "pk": "7a6c2a92-cec9-4720-8644-791170c29b43",
+        "pk": "5",
         "fields": {
-            "participant_email": "liam.smith@example.com",
-            "participant_first_name": "Liam",
-            "participant_last_name": "Smith",
-            "participant_created_at": "2023-01-01T00:00:00Z"
+            "email": "ema.smith@example.com",
+            "first_name": "Ema",
+            "last_name": "Smith",
+            "created_at": "2023-01-01T00:00:00Z"
+        }
+    },
+
+
+
+
+
+    {
+        "model": "group_expense_tracker_app.EventParticipant",
+        "pk": "1",
+        "fields": {
+            "event_id": "1",
+            "participant_id": "1",
+            "registered_at": "2023-01-01T00:00:00Z"
         }
     },
 
     {
-        "model": "group_expense_tracker_app.Participant",
-        "pk": "a8027608-67ee-4413-b6da-5aaef0ee909c",
+        "model": "group_expense_tracker_app.EventParticipant",
+        "pk": "2",
         "fields": {
-            "participant_email": "ema.smith@example.com",
-            "participant_first_name": "Ema",
-            "participant_last_name": "Smith",
-            "participant_created_at": "2023-01-01T00:00:00Z"
+            "event_id": "1",
+            "participant_id": "2",
+            "registered_at": "2023-01-01T00:00:00Z"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventParticipant",
+        "pk": "3",
+        "fields": {
+            "event_id": "1",
+            "participant_id": "3",
+            "registered_at": "2023-01-01T00:00:00Z"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventParticipant",
+        "pk": "4",
+        "fields": {
+            "event_id": "2",
+            "participant_id": "1",
+            "registered_at": "2023-01-01T00:00:00Z"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventParticipant",
+        "pk": "5",
+        "fields": {
+            "event_id": "2",
+            "participant_id": "2",
+            "registered_at": "2023-01-01T00:00:00Z"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventParticipant",
+        "pk": "6",
+        "fields": {
+            "event_id": "2",
+            "participant_id": "3",
+            "registered_at": "2023-01-01T00:00:00Z"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventParticipant",
+        "pk": "7",
+        "fields": {
+            "event_id": "2",
+            "participant_id": "4",
+            "registered_at": "2023-01-01T00:00:00Z"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventParticipant",
+        "pk": "8",
+        "fields": {
+            "event_id": "2",
+            "participant_id": "5",
+            "registered_at": "2023-01-01T00:00:00Z"
         }
     },
 
@@ -98,101 +186,21 @@
 
     {
         "model": "group_expense_tracker_app.EventParticipant",
-        "pk": "bde6608e-33ff-4ce6-9d9a-af0c36b8a96c",
+        "pk": "9",
         "fields": {
-            "event_id": "16109bc0-cea2-4aba-9bd3-c6a32bc0e6a0",
-            "participant_id": "c836d0a4-5bf0-4b10-a6de-dc092d4bf93b",
-            "event_participant_registered_at": "2023-01-01T00:00:00Z"
+            "event_id": "3",
+            "participant_id": "4",
+            "registered_at": "2023-01-01T00:00:00Z"
         }
     },
 
     {
         "model": "group_expense_tracker_app.EventParticipant",
-        "pk": "ed10d8b7-5fa2-4a93-bda0-46bbff554023",
+        "pk": "10",
         "fields": {
-            "event_id": "16109bc0-cea2-4aba-9bd3-c6a32bc0e6a0",
-            "participant_id": "a221c18a-b25a-425a-995f-c51de994c411",
-            "event_participant_registered_at": "2023-01-01T00:00:00Z"
-        }
-    },
-
-    {
-        "model": "group_expense_tracker_app.EventParticipant",
-        "pk": "dd4c505d-b9c0-4915-8edf-87fccd1c37cd",
-        "fields": {
-            "event_id": "16109bc0-cea2-4aba-9bd3-c6a32bc0e6a0",
-            "participant_id": "7a6c2a92-cec9-4720-8644-791170c29b43",
-            "event_participant_registered_at": "2023-01-01T00:00:00Z"
-        }
-    },
-
-    {
-        "model": "group_expense_tracker_app.EventParticipant",
-        "pk": "c50224c5-ea99-46c9-9079-04ff7e3f30d1",
-        "fields": {
-            "event_id": "1ff70029-583d-4dc9-8bf6-279492a306a5",
-            "participant_id": "4521831c-eaf1-4ca5-b604-08735ea98f0b",
-            "event_participant_registered_at": "2023-01-01T00:00:00Z"
-        }
-    },
-
-    {
-        "model": "group_expense_tracker_app.EventParticipant",
-        "pk": "6dc008e8-a362-4360-abe9-774badc68771",
-        "fields": {
-            "event_id": "1ff70029-583d-4dc9-8bf6-279492a306a5",
-            "participant_id": "c836d0a4-5bf0-4b10-a6de-dc092d4bf93b",
-            "event_participant_registered_at": "2023-01-01T00:00:00Z"
-        }
-    },
-
-    {
-        "model": "group_expense_tracker_app.EventParticipant",
-        "pk": "80b83185-0f43-4cf0-a194-65ac92444ad5",
-        "fields": {
-            "event_id": "1ff70029-583d-4dc9-8bf6-279492a306a5",
-            "participant_id": "a221c18a-b25a-425a-995f-c51de994c411",
-            "event_participant_registered_at": "2023-01-01T00:00:00Z"
-        }
-    },
-
-    {
-        "model": "group_expense_tracker_app.EventParticipant",
-        "pk": "d862c4bc-de86-4f68-9daa-0094aa215c52",
-        "fields": {
-            "event_id": "1ff70029-583d-4dc9-8bf6-279492a306a5",
-            "participant_id": "7a6c2a92-cec9-4720-8644-791170c29b43",
-            "event_participant_registered_at": "2023-01-01T00:00:00Z"
-        }
-    },
-
-    {
-        "model": "group_expense_tracker_app.EventParticipant",
-        "pk": "2fd58ce8-4966-4634-b27b-6542d3ba0a9b",
-        "fields": {
-            "event_id": "1ff70029-583d-4dc9-8bf6-279492a306a5",
-            "participant_id": "a8027608-67ee-4413-b6da-5aaef0ee909c",
-            "event_participant_registered_at": "2023-01-01T00:00:00Z"
-        }
-    },
-
-    {
-        "model": "group_expense_tracker_app.EventParticipant",
-        "pk": "a1d8a9de-fa03-4d38-8125-b3289242f8c0",
-        "fields": {
-            "event_id": "26fc537f-a864-4441-9356-325c289621a0",
-            "participant_id": "7a6c2a92-cec9-4720-8644-791170c29b43",
-            "event_participant_registered_at": "2023-01-01T00:00:00Z"
-        }
-    },
-
-    {
-        "model": "group_expense_tracker_app.EventParticipant",
-        "pk": "14d2bc35-4759-48ff-b607-dc76588bf97b",
-        "fields": {
-            "event_id": "26fc537f-a864-4441-9356-325c289621a0",
-            "participant_id": "a8027608-67ee-4413-b6da-5aaef0ee909c",
-            "event_participant_registered_at": "2023-01-01T00:00:00Z"
+            "event_id": "3",
+            "participant_id": "5",
+            "registered_at": "2023-01-01T00:00:00Z"
         }
     }
 

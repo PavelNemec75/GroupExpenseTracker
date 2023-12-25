@@ -1,15 +1,15 @@
-# from datetime import datetime
+from datetime import datetime
 
-# import strawberry
-# from strawberry import relay
-# from typing import List
-# from typing import Optional
-#
-# from django.db import transaction
+import strawberry
+from strawberry import relay
+from typing import List
+from typing import Optional
 
-# from .models import Event #, Participant, EventParticipant, EventExpenseItem, EventExpenseGroup
-# from .types import EventType #, ParticipantType, EventParticipantType, EventExpenseItemType, EventExpenseGroupType,
-# from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
+
+from .models import Event, Participant, EventParticipant, EventExpenseGroup, EventExpenseItem
+from .types import EventType, ParticipantType, EventParticipantType, EventExpenseGroupType, EventExpenseItemType
+from django.core.exceptions import ObjectDoesNotExist
 
 
 # @strawberry.input
@@ -30,15 +30,32 @@
 #     event_expense_group_id: str
 
 
-# @strawberry.type
-# class Query:
-    # node: relay.Node = relay.node()
-    # get_events: strawberry.django.relay.ListConnectionWithTotalCount[EventType] = strawberry.django.connection()
+@strawberry.type
+class Query:
+    node: relay.Node = relay.node()
+    get_events: strawberry.django.relay.ListConnectionWithTotalCount[EventType] = strawberry.django.connection()
 
+    # @strawberry.field
+    # def get_events(self, info: Info) -> strawberry.types.ExecuteInfo:
+    #     return mutations.get_list(EventType, Event.objects.all(), info)
+    #
+    # @strawberry.field
+    # def get_participants(self, info: Info) -> strawberry.types.ExecuteInfo:
+    #     return mutations.get_list(ParticipantType, Participant.objects.all(), info)
+    #
+    # @strawberry.field
+    # def get_all_event_participants(self, info: Info) -> strawberry.types.ExecuteInfo:
+    #     return mutations.get_list(
+    #         EventParticipantType,
+    #         EventParticipant.objects.select_related('participant', 'event').all(),
+    #         info
+    #     )
+
+    #
     # @strawberry.field
     # def get_events(self) -> List[EventType]:
     #     return list(Event.objects.all())
-
+    #
     # @strawberry.field
     # def get_participants(self) -> List[ParticipantType]:
     #     return list(Participant.objects.all())
@@ -47,48 +64,10 @@
     # def get_all_event_participants(self) -> List[EventParticipantType]:
     #     return EventParticipant.objects.select_related('participant', 'event').all()
     #
-    # @strawberry.field
-    # def get_joined_data(self, event_id: str) -> JoinedTypes:
     #
-    #     event_data = Event.objects.filter(event_id=event_id).first()
-    #     event_participant_data = EventParticipant.objects.select_related(
-    #         "participant",
-    #         "event",
-    #     ).filter(event_id=event_id)
     #
-    #     participant_data = Participant.objects.filter(eventparticipant__event__event_id=event_id)
     #
-    #     expense_group_data = EventExpenseGroup.objects.select_related(
-    #         "event_participant__participant",
-    #         "event_expense_item",
-    #     ).filter(event_participant__event__event_id=event_id)
     #
-    #     # event_data = Event.objects.filter(event_id=event_id).first()
-    #     # event_participant_data = EventParticipant.objects.select_related(
-    #     #     "participant",
-    #     #     "event",
-    #     # ).filter(event_id=event_id)
-    #     #
-    #     # expense_group_data = EventExpenseGroup.objects.filter(
-    #     #     event_participant__event__event_id=event_id,
-    #     # )
-    #
-    #     ## expense_group_data = EventExpenseGroup.objects.select_related(
-    #     ##     'event_participant__participant',
-    #     ##     'event_expense_item',
-    #     ## ).filter(event_participant__event__event_id=event_id)
-    #
-    #     expense_item_data = EventExpenseItem.objects.filter(
-    #         eventexpensegroup__event_participant__event__event_id=event_id,
-    #     )
-    #
-    #     return JoinedTypes(
-    #         event=event_data,
-    #         participant=list(participant_data),
-    #         event_participant=list(event_participant_data),
-    #         event_expense_item=list(expense_item_data),
-    #         event_expense_group=list(expense_group_data),
-    #     )
     #
     #
     # @strawberry.field
@@ -365,5 +344,5 @@
 #         return True
 
 
-# schema = strawberry.Schema(query=Query)
+schema = strawberry.Schema(query=Query)
 # schema = strawberry.Schema(query=Query, mutation=Mutation)
