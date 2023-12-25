@@ -1,15 +1,15 @@
-from datetime import datetime
+# from datetime import datetime
 
 import strawberry
 from strawberry import relay
-from typing import List
-from typing import Optional
+# from typing import List
+# from typing import Optional
 
-from django.db import transaction
+# from django.db import transaction
 
-from .models import Event, Participant, EventParticipant, EventExpenseGroup, EventExpenseItem
-from .types import EventType, ParticipantType, EventParticipantType, EventExpenseGroupType, EventExpenseItemType
-from django.core.exceptions import ObjectDoesNotExist
+# from .models import Event, Participant, EventParticipant, EventExpenseGroup, EventExpenseItem
+from .types import EventType, ParticipantType, EventParticipantType #, EventExpenseGroupType, EventExpenseItemType
+# from django.core.exceptions import ObjectDoesNotExist
 
 
 # @strawberry.input
@@ -32,8 +32,17 @@ from django.core.exceptions import ObjectDoesNotExist
 
 @strawberry.type
 class Query:
+
     node: relay.Node = relay.node()
-    get_events: strawberry.django.relay.ListConnectionWithTotalCount[EventType] = strawberry.django.connection()
+
+    get_events: strawberry.django.relay.ListConnectionWithTotalCount[EventType] = (
+        strawberry.django.connection())
+
+    get_participants: strawberry.django.relay.ListConnectionWithTotalCount[ParticipantType] = (
+        strawberry.django.connection())
+
+    get_event_participants: strawberry.django.relay.ListConnectionWithTotalCount[EventParticipantType] = (
+        strawberry.django.connection())
 
     # @strawberry.field
     # def get_events(self, info: Info) -> strawberry.types.ExecuteInfo:
