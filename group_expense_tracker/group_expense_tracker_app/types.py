@@ -1,71 +1,60 @@
-# from strawberry.types import Info
-# from strawberry.utils.await_maybe import AwaitableOrValue
-# from typing_extensions import Self
-
 import strawberry
 from strawberry import relay
+from strawberry.relay import NodeType
+
 from . import models
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
 
-@strawberry.django.type(models.Event)
+@strawberry.django.type(models.Event, interfaces=[NodeType])
 class EventType(relay.Node):
-    event_id: relay.NodeID[str]
-    event_name: str
-    event_start_date: Optional[datetime]
-    event_end_date: Optional[datetime]
-    event_created_at: datetime
+    id: relay.NodeID  # noqa: A003
+    name: str
+    start_date: Optional[datetime]
+    end_date: Optional[datetime]
+    created_at: datetime
 
-    @classmethod
-    def resolve_id(
-        cls,
-        root: models.Event,
-        *,
-        info: None,  # noqa: ARG003
-    ) -> str: return root.event_id
+    # @classmethod
+    # def resolve_id(
+    #     cls,
+    #     root: models.Event,
+    #     *,
+    #     info: None,  # noqa: ARG003
+    # ) -> str: return root.id
+    #
+    # @classmethod
+    # def resolve_id_attr(cls) -> str:
+    #     return "event_id"
 
-    @classmethod
-    def resolve_id_attr(cls) -> str:
-        return "event_id"
 
-
-@strawberry.django.type(models.Participant)
+@strawberry.django.type(models.Participant, interfaces=[NodeType])
 class ParticipantType:
-    participant_id: str
-    participant_email: str
-    participant_first_name: str
-    participant_last_name: str
-    participant_created_at: datetime
+    id: relay.NodeID  # noqa: A003
+    email: str
+    first_name: str
+    last_name: str
+    created_at: datetime
 
 
-@strawberry.django.type(models.EventParticipant)
+@strawberry.django.type(models.EventParticipant, interfaces=[NodeType])
 class EventParticipantType:
-    event_participant_id: str
+    id: relay.NodeID  # noqa: A003
+    event: EventType
     participant: ParticipantType
-    event: EventType
-    event_participant_registered_at: datetime
+    registered_at: datetime
 
 
-@strawberry.django.type(models.EventExpenseItem)
-class EventExpenseItemType:
-    event_expense_item_id: str
-    event_expense_item_name: str
-    event_expense_item_price_eur: float
-
-
-@strawberry.django.type(models.EventExpenseGroup)
+@strawberry.django.type(models.EventExpenseGroup, interfaces=[NodeType])
 class EventExpenseGroupType:
-    event_expense_group_id: str
-    event_participant: EventParticipantType
-    event_expense_item: EventExpenseItemType
+    id: relay.NodeID  # noqa: A003
     paid_eur: float
+    event_participant: EventParticipantType
 
 
-@strawberry.type
-class JoinedTypes:
-    event: EventType
-    participant: List[ParticipantType]
-    event_participant: List[EventParticipantType]
-    event_expense_item: List[EventExpenseItemType]
-    event_expense_group: List[EventExpenseGroupType]
+@strawberry.django.type(models.EventExpenseItem, interfaces=[NodeType])
+class EventExpenseItemType:
+    id: relay.NodeID  # noqa: A003
+    name: str
+    price_eur: float
+    event_expense_item: EventExpenseGroupType

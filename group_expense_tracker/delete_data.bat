@@ -1,1 +1,0 @@
-rem python manage.py flush
