@@ -29,6 +29,7 @@ ALLOWED_HOSTS = []
 
 INTERNAL_IPS = [
     '127.0.0.1',
+    'localhost',
 ]
 
 # Application definition
@@ -45,8 +46,8 @@ INSTALLED_APPS = [
     # Third party apps
     'strawberry',
     # Debugging
-    # 'debug_toolbar',
-    # 'graphiql_strawberry_debug_toolbar',
+    'debug_toolbar',
+    'graphiql_strawberry_debug_toolbar',
 
 
 ]
@@ -60,7 +61,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
-    # 'graphiql_strawberry_debug_toolbar.middleware.DebugToolbarMiddleware',
+    'graphiql_strawberry_debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'group_expense_tracker.urls'

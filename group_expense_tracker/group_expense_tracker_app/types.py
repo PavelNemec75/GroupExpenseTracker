@@ -2,7 +2,7 @@ import strawberry
 from strawberry import relay
 from . import models
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 
 @strawberry.django.type(models.Event)
@@ -13,21 +13,13 @@ class EventType(relay.Node):
     end_date: Optional[datetime]
     created_at: datetime
 
-    # @classmethod
-    # def resolve_id(
-    #     cls,
-    #     root: models.Event,
-    #     *,
-    #     info: None,  # noqa: ARG003
-    # ) -> str: return root.id
-    #
-    # @classmethod
-    # def resolve_id_attr(cls) -> str:
-    #     return "event_id"
+    @strawberry.field
+    def event_participants(self) -> List["EventParticipantType"]:
+        return models.EventParticipant.objects.filter(event_id=self.id)
 
 
 @strawberry.django.type(models.Participant)
-class ParticipantType:
+class ParticipantType(relay.Node):
     id: relay.NodeID  # noqa: A003
     email: str
     first_name: str
@@ -36,7 +28,7 @@ class ParticipantType:
 
 
 @strawberry.django.type(models.EventParticipant)
-class EventParticipantType:
+class EventParticipantType(relay.Node):
     id: relay.NodeID  # noqa: A003
     event: EventType
     participant: ParticipantType
@@ -44,14 +36,14 @@ class EventParticipantType:
 
 
 @strawberry.django.type(models.EventExpenseItem)
-class EventExpenseItemType:
+class EventExpenseItemType(relay.Node):
     id: relay.NodeID  # noqa: A003
     name: str
     price_eur: float
 
 
 @strawberry.django.type(models.EventExpenseGroup)
-class EventExpenseGroupType:
+class EventExpenseGroupType(relay.Node):
     id: relay.NodeID  # noqa: A003
     paid_eur: float
     event_participant: EventParticipantType
