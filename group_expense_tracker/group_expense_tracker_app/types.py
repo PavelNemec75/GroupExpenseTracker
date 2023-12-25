@@ -1,13 +1,11 @@
 import strawberry
 from strawberry import relay
-from strawberry.relay import NodeType
-
 from . import models
 from datetime import datetime
 from typing import Optional
 
 
-@strawberry.django.type(models.Event, interfaces=[NodeType])
+@strawberry.django.type(models.Event)
 class EventType(relay.Node):
     id: relay.NodeID  # noqa: A003
     name: str
@@ -28,7 +26,7 @@ class EventType(relay.Node):
     #     return "event_id"
 
 
-@strawberry.django.type(models.Participant, interfaces=[NodeType])
+@strawberry.django.type(models.Participant)
 class ParticipantType:
     id: relay.NodeID  # noqa: A003
     email: str
@@ -37,7 +35,7 @@ class ParticipantType:
     created_at: datetime
 
 
-@strawberry.django.type(models.EventParticipant, interfaces=[NodeType])
+@strawberry.django.type(models.EventParticipant)
 class EventParticipantType:
     id: relay.NodeID  # noqa: A003
     event: EventType
@@ -45,14 +43,14 @@ class EventParticipantType:
     registered_at: datetime
 
 
-@strawberry.django.type(models.EventExpenseGroup, interfaces=[NodeType])
+@strawberry.django.type(models.EventExpenseGroup)
 class EventExpenseGroupType:
     id: relay.NodeID  # noqa: A003
     paid_eur: float
     event_participant: EventParticipantType
 
 
-@strawberry.django.type(models.EventExpenseItem, interfaces=[NodeType])
+@strawberry.django.type(models.EventExpenseItem)
 class EventExpenseItemType:
     id: relay.NodeID  # noqa: A003
     name: str
