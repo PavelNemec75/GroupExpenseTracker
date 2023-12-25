@@ -43,16 +43,16 @@ class EventParticipantType:
     registered_at: datetime
 
 
-@strawberry.django.type(models.EventExpenseGroup)
-class EventExpenseGroupType:
-    id: relay.NodeID  # noqa: A003
-    paid_eur: float
-    event_participant: EventParticipantType
-
-
 @strawberry.django.type(models.EventExpenseItem)
 class EventExpenseItemType:
     id: relay.NodeID  # noqa: A003
     name: str
     price_eur: float
-    event_expense_item: EventExpenseGroupType
+
+
+@strawberry.django.type(models.EventExpenseGroup)
+class EventExpenseGroupType:
+    id: relay.NodeID  # noqa: A003
+    paid_eur: float
+    event_participant: EventParticipantType
+    event_expense_item: EventExpenseItemType

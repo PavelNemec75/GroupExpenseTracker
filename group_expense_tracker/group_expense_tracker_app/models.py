@@ -30,18 +30,18 @@ class EventParticipant(models.Model):
         return f"{self.participant} in {self.event}"
 
 
-class EventExpenseGroup(models.Model):
-    paid_eur = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    event_participant = models.ForeignKey(EventParticipant, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.event_participant} - {self.event_expense_item}"
-
-
 class EventExpenseItem(models.Model):
     name = models.TextField(blank=False)
     price_eur = models.DecimalField(blank=False, max_digits=10, decimal_places=2)
-    event_expense_group = models.ForeignKey(EventExpenseGroup, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
+
+
+class EventExpenseGroup(models.Model):
+    paid_eur = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    event_participant = models.ForeignKey(EventParticipant, on_delete=models.CASCADE)
+    event_expense_item = models.ForeignKey(EventExpenseItem, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.event_participant} - {self.event_expense_item}"

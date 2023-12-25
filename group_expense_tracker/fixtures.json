@@ -202,6 +202,226 @@
             "participant_id": "5",
             "registered_at": "2023-01-01T00:00:00Z"
         }
+    },
+
+
+
+
+
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseItem",
+        "pk": "1",
+        "fields": {
+            "name": "train tickets",
+            "price_eur": "120"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseItem",
+        "pk": "2",
+        "fields": {
+            "name": "refreshments",
+            "price_eur": "250"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseItem",
+        "pk": "3",
+        "fields": {
+            "name": "pizza",
+            "price_eur": "49"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseItem",
+        "pk": "4",
+        "fields": {
+            "name": "fuel",
+            "price_eur": "20"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseItem",
+        "pk": "5",
+        "fields": {
+            "name": "service",
+            "price_eur": "44"
+        }
+    },
+
+
+
+
+
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseGroup",
+        "pk": "1",
+        "fields": {
+            "event_participant_id": "1",
+            "event_expense_item_id": "1",
+            "paid_eur": "120"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseGroup",
+        "pk": "2",
+        "fields": {
+            "event_participant_id": "2",
+            "event_expense_item_id": "1",
+            "paid_eur": "0"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseGroup",
+        "pk": "3",
+        "fields": {
+            "event_participant_id": "3",
+            "event_expense_item_id": "1",
+            "paid_eur": "0"
+        }
+    },
+
+
+
+
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseGroup",
+        "pk": "4",
+        "fields": {
+            "event_participant_id": "4",
+            "event_expense_item_id": "2",
+            "paid_eur": "100"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseGroup",
+        "pk": "5",
+        "fields": {
+            "event_participant_id": "5",
+            "event_expense_item_id": "2",
+            "paid_eur": "50"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseGroup",
+        "pk": "6",
+        "fields": {
+            "event_participant_id": "6",
+            "event_expense_item_id": "2",
+            "paid_eur": "0"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseGroup",
+        "pk": "7",
+        "fields": {
+            "event_participant_id": "7",
+            "event_expense_item_id": "2",
+            "paid_eur": "0"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseGroup",
+        "pk": "8",
+        "fields": {
+            "event_participant_id": "8",
+            "event_expense_item_id": "2",
+            "paid_eur": "0"
+        }
+    },
+
+
+
+
+
+
+
+    
+    {
+        "model": "group_expense_tracker_app.EventExpenseGroup",
+        "pk": "9",
+        "fields": {
+            "event_participant_id": "4",
+            "event_expense_item_id": "3",
+            "paid_eur": "49"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseGroup",
+        "pk": "10",
+        "fields": {
+            "event_participant_id": "5",
+            "event_expense_item_id": "3",
+            "paid_eur": "0"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseGroup",
+        "pk": "11",
+        "fields": {
+            "event_participant_id": "6",
+            "event_expense_item_id": "3",
+            "paid_eur": "0"
+        }
+    },
+
+
+
+
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseGroup",
+        "pk": "12",
+        "fields": {
+            "event_participant_id": "9",
+            "event_expense_item_id": "4",
+            "paid_eur": "20"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseGroup",
+        "pk": "13",
+        "fields": {
+            "event_participant_id": "10",
+            "event_expense_item_id": "4",
+            "paid_eur": "0"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseGroup",
+        "pk": "14",
+        "fields": {
+            "event_participant_id": "9",
+            "event_expense_item_id": "5",
+            "paid_eur": "0"
+        }
+    },
+
+    {
+        "model": "group_expense_tracker_app.EventExpenseGroup",
+        "pk": "15",
+        "fields": {
+            "event_participant_id": "10",
+            "event_expense_item_id": "5",
+            "paid_eur": "44"
+        }
     }
 
 
