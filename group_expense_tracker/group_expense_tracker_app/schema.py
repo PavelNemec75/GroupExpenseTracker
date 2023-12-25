@@ -1,4 +1,5 @@
 # from datetime import datetime
+from pathlib import Path
 
 import strawberry
 from strawberry import relay
@@ -355,3 +356,7 @@ class Query:
 
 schema = strawberry.Schema(query=Query)
 # schema = strawberry.Schema(query=Query, mutation=Mutation)
+
+with Path("../schema.graphql").open("w") as file:
+    file.write(schema.as_str())
+
