@@ -1,16 +1,33 @@
+# from strawberry.types import Info
+# from strawberry.utils.await_maybe import AwaitableOrValue
+# from typing_extensions import Self
+
 import strawberry
+from strawberry import relay
 from . import models
 from datetime import datetime
 from typing import List, Optional
 
 
 @strawberry.django.type(models.Event)
-class EventType:
-    event_id: str
+class EventType(relay.Node):
+    event_id: relay.NodeID[str]
     event_name: str
     event_start_date: Optional[datetime]
     event_end_date: Optional[datetime]
     event_created_at: datetime
+
+    @classmethod
+    def resolve_id(
+        cls,
+        root: models.Event,
+        *,
+        info: None,  # noqa: ARG003
+    ) -> str: return root.event_id
+
+    @classmethod
+    def resolve_id_attr(cls) -> str:
+        return "event_id"
 
 
 @strawberry.django.type(models.Participant)

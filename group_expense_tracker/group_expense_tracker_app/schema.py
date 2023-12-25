@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 
 import strawberry
+from strawberry import relay
 from typing import List
 from typing import Optional
 
@@ -35,10 +36,12 @@ class CreateEventExpenseGroupOutput:
 
 @strawberry.type
 class Query:
+    node: relay.Node = relay.node()
+    get_events: strawberry.django.relay.ListConnectionWithTotalCount[EventType] = strawberry.django.connection()
 
-    @strawberry.field
-    def get_events(self) -> List[EventType]:
-        return list(Event.objects.all())
+    # @strawberry.field
+    # def get_events(self) -> List[EventType]:
+    #     return list(Event.objects.all())
 
     @strawberry.field
     def get_participants(self) -> List[ParticipantType]:
