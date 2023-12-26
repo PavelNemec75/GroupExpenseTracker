@@ -7,7 +7,7 @@ from typing import List, Optional
 
 @strawberry.django.type(models.Event)
 class EventType(relay.Node):
-    id: relay.NodeID  # noqa: A003
+    id: relay.NodeID[str]  # noqa: A003
     name: str
     start_date: Optional[datetime]
     end_date: Optional[datetime]
@@ -16,6 +16,10 @@ class EventType(relay.Node):
     @strawberry.field
     def event_participants(self) -> List["EventParticipantType"]:
         return models.EventParticipant.objects.filter(event_id=self.id)
+
+    # @strawberry.field
+    # def event_participants(self) -> List["EventParticipantType"]:
+    #     return self.eventparticipant_set.all()
 
 
 @strawberry.django.type(models.Participant)
@@ -48,3 +52,11 @@ class EventExpenseGroupType(relay.Node):
     paid_eur: float
     event_participant: EventParticipantType
     event_expense_item: EventExpenseItemType
+
+@strawberry.type
+class JoinedTypes:
+    event: EventType
+    event_participant: List[EventParticipantType]
+    participant: List[ParticipantType]
+    # event_expense_item: EventExpenseItemType
+    # event_expense_group: List[EventExpenseGroupType]

@@ -66,6 +66,12 @@ The `ID` scalar type represents a unique identifier, often used to refetch an ob
 """
 scalar GlobalID @specifiedBy(url: "https://relay.dev/graphql/objectidentification.htm")
 
+type JoinedTypes {
+  event: EventType!
+  eventParticipant: [EventParticipantType!]!
+  participant: [ParticipantType!]!
+}
+
 """An object with a Globally Unique ID"""
 interface Node {
   """The Globally Unique ID of this object"""
@@ -161,4 +167,6 @@ type Query {
     """Returns the items in the list that come after the specified cursor."""
     last: Int = null
   ): EventParticipantTypeConnection!
+  combinedData: [EventParticipantType!]!
+  eventWithParticipants(id: Int!): JoinedTypes!
 }
