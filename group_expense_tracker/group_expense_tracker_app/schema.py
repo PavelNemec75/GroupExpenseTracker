@@ -4,6 +4,8 @@ from typing import Any, Iterable, List, Optional
 
 import strawberry
 from strawberry import relay
+from strawberry.types import Info
+
 # from typing import List
 # from typing import Optional
 
@@ -11,10 +13,9 @@ from strawberry import relay
 
 from .models import Event, Participant, EventParticipant, EventExpenseGroup, EventExpenseItem
 from .types import (
-    EventType, ParticipantType, EventParticipantType, JoinedTypes
+    EventType, ParticipantType, EventParticipantType, CustomType, FruitType #, EventConnection, EventEdge
     # , EventExpenseGroupType, EventExpenseItemType
 )
-
 
 # from django.core.exceptions import ObjectDoesNotExist
 
@@ -41,26 +42,61 @@ from .types import (
 class Query:
     node: relay.Node = relay.node()
 
-    @strawberry.field
-    def combined_data(self) -> List[EventParticipantType]:
-        event_id = 1
-        return EventParticipant.objects.filter(event_id=event_id) #.prefetch_related("eventexpensegroup_set")
-        # return EventParticipant.objects.filter(event_id=event_id).prefetch_related("eventexpensegroup__event_expense_item__eventexpensegroup_set")
-        # return EventParticipant.objects.filter(event_id=event_id).select_related("event", "participant").filter("eventexpensegroup__event_participant_set") #.eventexpensegroup_set.all() #.prefetch_related("eventexpensegroup_set__event_expense_item")
-        # return Event.objects.prefetch_related('event_participants__eventexpensegroup_set')
+    get_events: strawberry.django.relay.ListConnectionWithTotalCount[EventType] = (
+        strawberry.django.connection())
 
-    @strawberry.field
-    def event_with_participants(self, info, id: int) -> JoinedTypes:
+    get_custom: strawberry.django.relay.ListConnectionWithTotalCount[CustomType] = (
+        strawberry.django.connection())
 
-        event_data = Event.objects.filter(id=id).first()
-        event_participant_data = EventParticipant.objects.select_related("event")
-        participant_data = Participant.objects.prefetch_related("participant_events")
+    fruits: strawberry.django.relay.ListConnectionWithTotalCount[FruitType] = (
+        strawberry.django.connection())
 
-        return JoinedTypes(
-            event=event_data,
-            event_participant=list(event_participant_data),
-            participant=list(participant_data),
-        )
+    # from strawberry.django import auto
+    #
+    #
+    # @strawberry.field
+    # def get_events2(
+    #         self,
+    #         info,
+    #         event_id: strawberry.ID,
+    #         first: int = 10,
+    #         after: str = None
+    # ) -> EventConnection:
+    #     queryset = EventParticipant.objects.filter(event_id=event_id)
+    #
+    #     if after:
+    #         queryset = queryset.filter(id__gt=after)
+    #
+    #     event_participants = queryset[:first]
+    #
+    #     edges = [EventEdge(node=ep, cursor=str(ep.id)) for ep in event_participants]
+    #
+    #     return EventConnection(edges=edges, pageInfo=strawberry.types.PageInfo(
+    #         hasNextPage=len(event_participants) > 0,
+    #         endCursor=str(event_participants[-1].id) if event_participants else None))
+
+    # @strawberry.field
+    # def combined_data(self) -> List[EventParticipantType]:
+    #     event_id = 1
+    #     return EventParticipant.objects.filter(event_id=event_id) #.prefetch_related("eventexpensegroup_set")
+    #     # return EventParticipant.objects.filter(event_id=event_id).prefetch_related("eventexpensegroup__event_expense_item__eventexpensegroup_set")
+    #     # return EventParticipant.objects.filter(event_id=event_id).select_related("event", "participant").filter("eventexpensegroup__event_participant_set") #.eventexpensegroup_set.all() #.prefetch_related("eventexpensegroup_set__event_expense_item")
+    #     # return Event.objects.prefetch_related('event_participants__eventexpensegroup_set')
+    #
+    # @strawberry.field
+    # def event_with_participants(self, info, id: int) -> JoinedTypes:
+    #
+    #     event_data = Event.objects.filter(id=id).first()
+    #     event_participant_data = EventParticipant.objects.select_related("event")
+    #     participant_data = Participant.objects.prefetch_related("participant_events")
+    #
+    #     return JoinedTypes(
+    #         event=event_data,
+    #         event_participant=list(event_participant_data),
+    #         participant=list(participant_data),
+    #     )
+
+
         # Check results
         # if event is not None:
         #     # Convert event to GraphQL type
@@ -103,14 +139,11 @@ class Query:
     #     return queryset
     # return strawberry.django.connection(queryset)
 
-    get_events: strawberry.django.relay.ListConnectionWithTotalCount[EventType] = (
-        strawberry.django.connection())
-
-    get_participants: strawberry.django.relay.ListConnectionWithTotalCount[ParticipantType] = (
-        strawberry.django.connection())
-
-    get_event_participants: strawberry.django.relay.ListConnectionWithTotalCount[EventParticipantType] = (
-        strawberry.django.connection())
+    # get_participants: strawberry.django.relay.ListConnectionWithTotalCount[ParticipantType] = (
+    #     strawberry.django.connection())
+    #
+    # get_event_participants: strawberry.django.relay.ListConnectionWithTotalCount[EventParticipantType] = (
+    #     strawberry.django.connection())
 
     # def resolve_participants(root: ParticipantType, info) -> Iterable[ParticipantType]:
     #     return Participant.objects.select_related().filter(eventparticipant)

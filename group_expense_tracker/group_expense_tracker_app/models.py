@@ -23,8 +23,8 @@ class Participant(models.Model):
 
 class EventParticipant(models.Model):
     registered_at = models.DateTimeField(auto_now_add=True)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='xevent_participants')
-    participant = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name='xparticipant_events')
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.participant} in {self.event}"
@@ -40,8 +40,16 @@ class EventExpenseItem(models.Model):
 
 class EventExpenseGroup(models.Model):
     paid_eur = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    event_participant = models.ForeignKey(EventParticipant, on_delete=models.CASCADE, related_name='eventexpensegroup')
+    event_participant = models.ForeignKey(EventParticipant, on_delete=models.CASCADE)
     event_expense_item = models.ForeignKey(EventExpenseItem, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.event_participant} - {self.event_expense_item}"
+
+
+class Custom(models.Model):
+    xname = models.TextField(blank=False)
+
+    class Meta:
+        abstract = True
+        managed = False
