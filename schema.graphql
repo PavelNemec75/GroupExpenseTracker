@@ -1,31 +1,3 @@
-type CustomType implements Node {
-  """The Globally Unique ID of this object"""
-  id: GlobalID!
-  event: EventType!
-  customResolver: [EventType!]!
-}
-
-"""A connection to a list of items."""
-type CustomTypeConnection {
-  """Pagination data for this connection"""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection"""
-  edges: [CustomTypeEdge!]!
-
-  """Total quantity of existing nodes."""
-  totalCount: Int
-}
-
-"""An edge in a connection."""
-type CustomTypeEdge {
-  """A cursor for use in pagination"""
-  cursor: String!
-
-  """The item at the end of the edge"""
-  node: CustomType!
-}
-
 """Date with time (isoformat)"""
 scalar DateTime
 
@@ -84,32 +56,17 @@ type EventTypeEdge {
   node: EventType!
 }
 
+type FruitConnection {
+  edges: [FruitType!]!
+  totalCount: Int!
+  pageInfo: PageInfo!
+}
+
 type FruitType implements Node {
   """The Globally Unique ID of this object"""
   id: GlobalID!
   name: String!
   weight: Float!
-}
-
-"""A connection to a list of items."""
-type FruitTypeConnection {
-  """Pagination data for this connection"""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection"""
-  edges: [FruitTypeEdge!]!
-
-  """Total quantity of existing nodes."""
-  totalCount: Int
-}
-
-"""An edge in a connection."""
-type FruitTypeEdge {
-  """A cursor for use in pagination"""
-  cursor: String!
-
-  """The item at the end of the edge"""
-  node: FruitType!
 }
 
 """
@@ -145,6 +102,28 @@ type ParticipantType implements Node {
   firstName: String!
   lastName: String!
   createdAt: DateTime!
+  events: [EventType!]!
+}
+
+"""A connection to a list of items."""
+type ParticipantTypeConnection {
+  """Pagination data for this connection"""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection"""
+  edges: [ParticipantTypeEdge!]!
+
+  """Total quantity of existing nodes."""
+  totalCount: Int
+}
+
+"""An edge in a connection."""
+type ParticipantTypeEdge {
+  """A cursor for use in pagination"""
+  cursor: String!
+
+  """The item at the end of the edge"""
+  node: ParticipantType!
 }
 
 type Query {
@@ -165,7 +144,7 @@ type Query {
     """Returns the items in the list that come after the specified cursor."""
     last: Int = null
   ): EventTypeConnection!
-  getCustom(
+  getParticipants(
     """Returns the items in the list that come before the specified cursor."""
     before: String = null
 
@@ -177,18 +156,6 @@ type Query {
 
     """Returns the items in the list that come after the specified cursor."""
     last: Int = null
-  ): CustomTypeConnection!
-  fruits(
-    """Returns the items in the list that come before the specified cursor."""
-    before: String = null
-
-    """Returns the items in the list that come after the specified cursor."""
-    after: String = null
-
-    """Returns the first n items from the list."""
-    first: Int = null
-
-    """Returns the items in the list that come after the specified cursor."""
-    last: Int = null
-  ): FruitTypeConnection!
+  ): ParticipantTypeConnection!
+  fruits(first: Int!, last: Int!, after: String!, before: String!): FruitConnection!
 }

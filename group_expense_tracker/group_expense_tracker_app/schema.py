@@ -4,6 +4,7 @@ from typing import Any, Iterable, List, Optional
 
 import strawberry
 from strawberry import relay
+from strawberry.relay import Connection, Edge, PageInfo
 from strawberry.types import Info
 
 # from typing import List
@@ -13,7 +14,7 @@ from strawberry.types import Info
 
 from .models import Event, Participant, EventParticipant, EventExpenseGroup, EventExpenseItem
 from .types import (
-    EventType, ParticipantType, EventParticipantType, CustomType, FruitType #, EventConnection, EventEdge
+    EventType, ParticipantType, EventParticipantType,  # , CustomType, EventConnection, EventEdge
     # , EventExpenseGroupType, EventExpenseItemType
 )
 
@@ -38,18 +39,117 @@ from .types import (
 #     event_expense_group_id: str
 
 
+all_fruits = {
+    1: {"id": 1, "name": "Jablko", "weight": 0.2},
+    2: {"id": 2, "name": "Banán", "weight": 0.3},
+    3: {"id": 3, "name": "Hruška", "weight": 0.25},
+    4: {"id": 4, "name": "Kiwi", "weight": 0.4},
+    5: {"id": 5, "name": "Pomeranč", "weight": 0.35},
+    6: {"id": 6, "name": "Malina", "weight": 0.1},
+    7: {"id": 7, "name": "Ananas", "weight": 0.5},
+    8: {"id": 8, "name": "Jahoda", "weight": 0.15},
+    9: {"id": 9, "name": "Hrozny", "weight": 0.6},
+    10: {"id": 10, "name": "Mango", "weight": 0.45},
+}
+
+
+@strawberry.type
+class FruitType(relay.Node):
+    id: relay.NodeID[str]
+    name: str
+    weight: float
+
+    @classmethod
+    def resolve_nodes(
+        cls,
+        *,
+        info: Info,
+        node_ids: Iterable[str],
+        required: bool = False,
+    ):
+        return [
+            cls(
+                id=str(fruit["id"]),
+                name=fruit["name"],
+                weight=fruit["weight"]
+            )
+            for nid, fruit in all_fruits.items()
+            if nid in node_ids
+        ]
+
+
+@strawberry.type
+class FruitConnection:
+    edges: List[FruitType]
+    total_count: int
+    page_info: relay.PageInfo
+
 @strawberry.type
 class Query:
+
     node: relay.Node = relay.node()
+
+    # @relay.connection(relay.ListConnection[FruitType])
+    # def fruits(self) -> Iterable[FruitType]:
+    #     return [FruitType(id=str(fruit["id"]), name=fruit["name"], weight=fruit["weight"]) for fruit in all_fruits.values()]
+
+
+    @strawberry.field
+    def fruits(
+        self,
+        info: Info,
+        first: int = None,
+        last: int = None,
+        after: str = None,
+        before: str = None,
+    ) -> FruitConnection:
+        fruits = list(all_fruits.values())
+
+        # Apply pagination
+        if after:
+            start_index = next((index for index, fruit in enumerate(fruits) if fruit["id"] == int(after)), None)
+            fruits = fruits[start_index + 1:]
+        if before:
+            end_index = next((index for index, fruit in enumerate(fruits) if fruit["id"] == int(before)), None)
+            fruits = fruits[:end_index]
+
+        # Apply first and last
+        if first is not None:
+            fruits = fruits[:first]
+        elif last is not None:
+            fruits = fruits[-last:]
+
+        page_info = relay.PageInfo(
+            has_next_page=False,
+            has_previous_page=False,
+            start_cursor=str(fruits[0]["id"]) if fruits else None,
+            end_cursor=str(fruits[-1]["id"]) if fruits else None,
+        )
+
+        return FruitConnection(edges=[FruitType(**fruit) for fruit in fruits], total_count=len(fruits), page_info=page_info)
+
+
+
+
+
+
+
+
+
+
+
 
     get_events: strawberry.django.relay.ListConnectionWithTotalCount[EventType] = (
         strawberry.django.connection())
 
-    get_custom: strawberry.django.relay.ListConnectionWithTotalCount[CustomType] = (
+    get_participants: strawberry.django.relay.ListConnectionWithTotalCount[ParticipantType] = (
         strawberry.django.connection())
 
-    fruits: strawberry.django.relay.ListConnectionWithTotalCount[FruitType] = (
-        strawberry.django.connection())
+    # get_custom: strawberry.django.relay.ListConnectionWithTotalCount[CustomType] = (
+    #     strawberry.django.connection())
+    #
+    # fruits2: strawberry.django.relay.ListConnectionWithTotalCount[FruitType] = (
+    #     strawberry.django.connection())
 
     # from strawberry.django import auto
     #
@@ -96,31 +196,27 @@ class Query:
     #         participant=list(participant_data),
     #     )
 
-
-        # Check results
-        # if event is not None:
-        #     # Convert event to GraphQL type
-        #     event_type = EventType(
-        #         id=relay.NodeID(),
-        #         name=event.name,
-        #         # participants=[EventParticipantType(
-        #         #     id=relay.NodeID(),
-        #         #     event=EventType(
-        #         #         id=relay.NodeID(),
-        #         #         name=ep.event.name,
-        #         #         start_date=ep.event.start_date,
-        #         #         end_date=ep.event.end_date,
-        #         #         created_at=ep.event.created_at
-        #         #     ),
-        #         #     participant=ep.participant,  # you should convert participant to ParticipantType
-        #         #     registered_at=ep.registered_at
-        #         # ) for ep in event.eventparticipant_set.all()]
-        #     )
-        #     return event_type
-        # return None
-
-
-
+    # Check results
+    # if event is not None:
+    #     # Convert event to GraphQL type
+    #     event_type = EventType(
+    #         id=relay.NodeID(),
+    #         name=event.name,
+    #         # participants=[EventParticipantType(
+    #         #     id=relay.NodeID(),
+    #         #     event=EventType(
+    #         #         id=relay.NodeID(),
+    #         #         name=ep.event.name,
+    #         #         start_date=ep.event.start_date,
+    #         #         end_date=ep.event.end_date,
+    #         #         created_at=ep.event.created_at
+    #         #     ),
+    #         #     participant=ep.participant,  # you should convert participant to ParticipantType
+    #         #     registered_at=ep.registered_at
+    #         # ) for ep in event.eventparticipant_set.all()]
+    #     )
+    #     return event_type
+    # return None
 
     # @strawberry.django.field
     # def get_events(self, info) -> List[EventType]:
@@ -154,7 +250,6 @@ class Query:
     # events: List[EventType] = strawberry.field(resolve_events)
     #
     # participants: List[ParticipantType] = strawberry.field(resolve_participants)
-
 
     # @strawberry.field
     # def get_events(self, info: Info) -> strawberry.types.ExecuteInfo:
