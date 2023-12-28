@@ -3,9 +3,12 @@ from pathlib import Path
 from typing import Any, Iterable, List, Optional
 
 import strawberry
+from django.db.models import F
 from strawberry import relay
 from strawberry.relay import Connection, Edge, PageInfo
+from strawberry.schema.types.base_scalars import Decimal
 from strawberry.types import Info
+from tabulate import tabulate
 
 # from typing import List
 # from typing import Optional
@@ -18,6 +21,81 @@ from .types import (
     # , EventExpenseGroupType, EventExpenseItemType
 )
 
+
+from .models import Event, Participant, EventParticipant, EventExpenseGroup, EventExpenseItem
+
+
+@strawberry.type
+class CustomEventType:
+    event_id: relay.NodeID[int]
+    event_name: str
+    participant_id: int
+    first_name: str
+    last_name: str
+    item_id: int
+    item_name: str
+    price: Decimal
+    paid: Decimal
+
+
+
+
+@strawberry.field
+def get_event_data_view(event_id: Optional[int] = None) -> list[CustomEventType]:
+    queryset = Event.objects
+
+    if event_id is not None:
+        queryset = queryset.filter(id=event_id)
+
+    # queryset = Event.objects.filter(id=event_id).values(
+    #     event_id=F('id'),
+    #     event_name=F('name'),
+    #     participant_id=F('eventparticipant__participant__id'),
+    #     first_name=F('eventparticipant__participant__first_name'),
+    #     last_name=F('eventparticipant__participant__last_name'),
+    #     item_id=F('eventparticipant__eventexpensegroup__event_expense_item__id'),
+    #     item_name=F('eventparticipant__eventexpensegroup__event_expense_item__name'),
+    #     price=F('eventparticipant__eventexpensegroup__event_expense_item__price_eur'),
+    #     paid=F('eventparticipant__eventexpensegroup__paid_eur')
+    # ).order_by('first_name', 'last_name', 'item_name')
+    # queryset = User.objects.annotate(total_price=Sum('item__price')).values('name', 'total_price')
+    # user_data_list = [{'name': entry['name'], 'total_price': entry['total_price']} for entry in queryset]
+    # return user_data_list
+
+
+    queryset = queryset.annotate(
+        event_id=F('id'),
+        event_name=F('name'),
+        participant_id=F('eventparticipant__participant__id'),
+        first_name=F('eventparticipant__participant__first_name'),
+        last_name=F('eventparticipant__participant__last_name'),
+        item_id=F('eventparticipant__eventexpensegroup__event_expense_item__id'),
+        item_name=F('eventparticipant__eventexpensegroup__event_expense_item__name'),
+        price=F('eventparticipant__eventexpensegroup__event_expense_item__price_eur'),
+        paid=F('eventparticipant__eventexpensegroup__paid_eur')
+    ).values(
+        'event_id', 'event_name', 'participant_id', 'first_name', 'last_name',
+        'item_id', 'item_name', 'price', 'paid'
+    ).order_by('first_name', 'last_name', 'item_name')
+
+
+
+    event_data_list = [
+        CustomEventType(
+            event_id=entry['event_id'],
+            event_name=entry['event_name'],
+            participant_id=entry['participant_id'],
+            first_name=entry['first_name'],
+            last_name=entry['last_name'],
+            item_id=entry['item_id'],
+            item_name=entry['item_name'],
+            price=entry['price'],
+            paid=entry['paid']
+        )
+        for entry in queryset
+    ]
+
+    return event_data_list
 # from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -39,111 +117,17 @@ from .types import (
 #     event_expense_group_id: str
 
 
-all_fruits = {
-    1: {"id": 1, "name": "Jablko", "weight": 0.2},
-    2: {"id": 2, "name": "Banán", "weight": 0.3},
-    3: {"id": 3, "name": "Hruška", "weight": 0.25},
-    4: {"id": 4, "name": "Kiwi", "weight": 0.4},
-    5: {"id": 5, "name": "Pomeranč", "weight": 0.35},
-    6: {"id": 6, "name": "Malina", "weight": 0.1},
-    7: {"id": 7, "name": "Ananas", "weight": 0.5},
-    8: {"id": 8, "name": "Jahoda", "weight": 0.15},
-    9: {"id": 9, "name": "Hrozny", "weight": 0.6},
-    10: {"id": 10, "name": "Mango", "weight": 0.45},
-}
-
-
-@strawberry.type
-class FruitType(relay.Node):
-    id: relay.NodeID[str]
-    name: str
-    weight: float
-
-    @classmethod
-    def resolve_nodes(
-        cls,
-        *,
-        info: Info,
-        node_ids: Iterable[str],
-        required: bool = False,
-    ):
-        return [
-            cls(
-                id=str(fruit["id"]),
-                name=fruit["name"],
-                weight=fruit["weight"]
-            )
-            for nid, fruit in all_fruits.items()
-            if nid in node_ids
-        ]
-
-
-@strawberry.type
-class FruitConnection:
-    edges: List[FruitType]
-    total_count: int
-    page_info: relay.PageInfo
-
 @strawberry.type
 class Query:
-
     node: relay.Node = relay.node()
-
-    # @relay.connection(relay.ListConnection[FruitType])
-    # def fruits(self) -> Iterable[FruitType]:
-    #     return [FruitType(id=str(fruit["id"]), name=fruit["name"], weight=fruit["weight"]) for fruit in all_fruits.values()]
-
-
-    @strawberry.field
-    def fruits(
-        self,
-        info: Info,
-        first: int = None,
-        last: int = None,
-        after: str = None,
-        before: str = None,
-    ) -> FruitConnection:
-        fruits = list(all_fruits.values())
-
-        # Apply pagination
-        if after:
-            start_index = next((index for index, fruit in enumerate(fruits) if fruit["id"] == int(after)), None)
-            fruits = fruits[start_index + 1:]
-        if before:
-            end_index = next((index for index, fruit in enumerate(fruits) if fruit["id"] == int(before)), None)
-            fruits = fruits[:end_index]
-
-        # Apply first and last
-        if first is not None:
-            fruits = fruits[:first]
-        elif last is not None:
-            fruits = fruits[-last:]
-
-        page_info = relay.PageInfo(
-            has_next_page=False,
-            has_previous_page=False,
-            start_cursor=str(fruits[0]["id"]) if fruits else None,
-            end_cursor=str(fruits[-1]["id"]) if fruits else None,
-        )
-
-        return FruitConnection(edges=[FruitType(**fruit) for fruit in fruits], total_count=len(fruits), page_info=page_info)
-
-
-
-
-
-
-
-
-
-
-
 
     get_events: strawberry.django.relay.ListConnectionWithTotalCount[EventType] = (
         strawberry.django.connection())
 
     get_participants: strawberry.django.relay.ListConnectionWithTotalCount[ParticipantType] = (
         strawberry.django.connection())
+
+    get_event_data_view: list[CustomEventType] = get_event_data_view
 
     # get_custom: strawberry.django.relay.ListConnectionWithTotalCount[CustomType] = (
     #     strawberry.django.connection())

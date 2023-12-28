@@ -1,5 +1,19 @@
+type CustomEventType {
+  eventName: String!
+  participantId: Int!
+  firstName: String!
+  lastName: String!
+  itemId: Int!
+  itemName: String!
+  price: Decimal!
+  paid: Decimal!
+}
+
 """Date with time (isoformat)"""
 scalar DateTime
+
+"""Decimal (fixed-point)"""
+scalar Decimal
 
 type EventExpenseGroupType implements Node {
   """The Globally Unique ID of this object"""
@@ -54,19 +68,6 @@ type EventTypeEdge {
 
   """The item at the end of the edge"""
   node: EventType!
-}
-
-type FruitConnection {
-  edges: [FruitType!]!
-  totalCount: Int!
-  pageInfo: PageInfo!
-}
-
-type FruitType implements Node {
-  """The Globally Unique ID of this object"""
-  id: GlobalID!
-  name: String!
-  weight: Float!
 }
 
 """
@@ -157,5 +158,5 @@ type Query {
     """Returns the items in the list that come after the specified cursor."""
     last: Int = null
   ): ParticipantTypeConnection!
-  fruits(first: Int!, last: Int!, after: String!, before: String!): FruitConnection!
+  getEventDataView(eventId: Int = null): [CustomEventType!]!
 }

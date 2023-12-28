@@ -45,11 +45,3 @@ class EventExpenseGroup(models.Model):
 
     def __str__(self):
         return f"{self.event_participant} - {self.event_expense_item}"
-
-
-class Custom(models.Model):
-    xname = models.TextField(blank=False)
-
-    class Meta:
-        abstract = True
-        managed = False
