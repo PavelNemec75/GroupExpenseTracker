@@ -48,49 +48,49 @@ def get_event_data_view(event_id: Optional[int] = None) -> list[CustomEventType]
         queryset = queryset.filter(id=event_id)
 
     # queryset = Event.objects.filter(id=event_id).values(
-    #     event_id=F('id'),
-    #     event_name=F('name'),
-    #     participant_id=F('eventparticipant__participant__id'),
-    #     first_name=F('eventparticipant__participant__first_name'),
-    #     last_name=F('eventparticipant__participant__last_name'),
-    #     item_id=F('eventparticipant__eventexpensegroup__event_expense_item__id'),
-    #     item_name=F('eventparticipant__eventexpensegroup__event_expense_item__name'),
-    #     price=F('eventparticipant__eventexpensegroup__event_expense_item__price_eur'),
-    #     paid=F('eventparticipant__eventexpensegroup__paid_eur')
-    # ).order_by('first_name', 'last_name', 'item_name')
-    # queryset = User.objects.annotate(total_price=Sum('item__price')).values('name', 'total_price')
-    # user_data_list = [{'name': entry['name'], 'total_price': entry['total_price']} for entry in queryset]
+    #     event_id=F("id"),
+    #     event_name=F("name"),
+    #     participant_id=F("eventparticipant__participant__id"),
+    #     first_name=F("eventparticipant__participant__first_name"),
+    #     last_name=F("eventparticipant__participant__last_name"),
+    #     item_id=F("eventparticipant__eventexpensegroup__event_expense_item__id"),
+    #     item_name=F("eventparticipant__eventexpensegroup__event_expense_item__name"),
+    #     price=F("eventparticipant__eventexpensegroup__event_expense_item__price_eur"),
+    #     paid=F("eventparticipant__eventexpensegroup__paid_eur")
+    # ).order_by("first_name", "last_name", "item_name")
+    # queryset = User.objects.annotate(total_price=Sum("item__price")).values("name", "total_price")
+    # user_data_list = [{"name": entry["name"], "total_price": entry["total_price"]} for entry in queryset]
     # return user_data_list
 
 
     queryset = queryset.annotate(
-        event_id=F('id'),
-        event_name=F('name'),
-        participant_id=F('eventparticipant__participant__id'),
-        first_name=F('eventparticipant__participant__first_name'),
-        last_name=F('eventparticipant__participant__last_name'),
-        item_id=F('eventparticipant__eventexpensegroup__event_expense_item__id'),
-        item_name=F('eventparticipant__eventexpensegroup__event_expense_item__name'),
-        price=F('eventparticipant__eventexpensegroup__event_expense_item__price_eur'),
-        paid=F('eventparticipant__eventexpensegroup__paid_eur')
+        event_id=F("id"),
+        event_name=F("name"),
+        participant_id=F("eventparticipant__participant__id"),
+        first_name=F("eventparticipant__participant__first_name"),
+        last_name=F("eventparticipant__participant__last_name"),
+        item_id=F("eventparticipant__eventexpensegroup__event_expense_item__id"),
+        item_name=F("eventparticipant__eventexpensegroup__event_expense_item__name"),
+        price=F("eventparticipant__eventexpensegroup__event_expense_item__price_eur"),
+        paid=F("eventparticipant__eventexpensegroup__paid_eur")
     ).values(
-        'event_id', 'event_name', 'participant_id', 'first_name', 'last_name',
-        'item_id', 'item_name', 'price', 'paid'
-    ).order_by('first_name', 'last_name', 'item_name')
+        "event_id", "event_name", "participant_id", "first_name", "last_name",
+        "item_id", "item_name", "price", "paid"
+    ).order_by("first_name", "last_name", "item_name")
 
 
 
     event_data_list = [
         CustomEventType(
-            event_id=entry['event_id'],
-            event_name=entry['event_name'],
-            participant_id=entry['participant_id'],
-            first_name=entry['first_name'],
-            last_name=entry['last_name'],
-            item_id=entry['item_id'],
-            item_name=entry['item_name'],
-            price=entry['price'],
-            paid=entry['paid']
+            event_id=entry["event_id"],
+            event_name=entry["event_name"],
+            participant_id=entry["participant_id"],
+            first_name=entry["first_name"],
+            last_name=entry["last_name"],
+            item_id=entry["item_id"],
+            item_name=entry["item_name"],
+            price=entry["price"],
+            paid=entry["paid"]
         )
         for entry in queryset
     ]
@@ -165,7 +165,7 @@ class Query:
     #     return EventParticipant.objects.filter(event_id=event_id) #.prefetch_related("eventexpensegroup_set")
     #     # return EventParticipant.objects.filter(event_id=event_id).prefetch_related("eventexpensegroup__event_expense_item__eventexpensegroup_set")
     #     # return EventParticipant.objects.filter(event_id=event_id).select_related("event", "participant").filter("eventexpensegroup__event_participant_set") #.eventexpensegroup_set.all() #.prefetch_related("eventexpensegroup_set__event_expense_item")
-    #     # return Event.objects.prefetch_related('event_participants__eventexpensegroup_set')
+    #     # return Event.objects.prefetch_related("event_participants__eventexpensegroup_set")
     #
     # @strawberry.field
     # def event_with_participants(self, info, id: int) -> JoinedTypes:
@@ -204,18 +204,18 @@ class Query:
 
     # @strawberry.django.field
     # def get_events(self, info) -> List[EventType]:
-    #     return Event.objects.prefetch_related('eventparticipant_set').all()
+    #     return Event.objects.prefetch_related("eventparticipant_set").all()
     #
     # get_events_paginated: List[EventType] = strawberry.django.relay.connection.field(get_events)
 
     # @strawberry.django.field
     # def get_events(self, info) -> strawberry.django.relay.ListConnectionWithTotalCount[EventType]:
-    #     return Event.objects.prefetch_related('eventparticipant_set').all()
+    #     return Event.objects.prefetch_related("eventparticipant_set").all()
     #
 
     # @strawberry.django.field
     # def get_events(self, info) -> List[EventType]:
-    #     queryset = Event.objects.select_related('eventparticipant_set').filter(eventparticipant_set=)
+    #     queryset = Event.objects.select_related("eventparticipant_set").filter(eventparticipant_set=)
     #     return queryset
     # return strawberry.django.connection(queryset)
 
@@ -229,7 +229,7 @@ class Query:
     #     return Participant.objects.select_related().filter(eventparticipant)
     #
     # def resolve_events(root, info) -> Iterable[EventType]:
-    #     return Event.objects.prefetch_related('eventparticipant_set__participant').filter(event=root)
+    #     return Event.objects.prefetch_related("eventparticipant_set__participant").filter(event=root)
 
     # events: List[EventType] = strawberry.field(resolve_events)
     #
@@ -247,7 +247,7 @@ class Query:
     # def get_all_event_participants(self, info: Info) -> strawberry.types.ExecuteInfo:
     #     return mutations.get_list(
     #         EventParticipantType,
-    #         EventParticipant.objects.select_related('participant', 'event').all(),
+    #         EventParticipant.objects.select_related("participant", "event").all(),
     #         info
     #     )
 
@@ -262,7 +262,7 @@ class Query:
     #
     # @strawberry.field
     # def get_all_event_participants(self) -> List[EventParticipantType]:
-    #     return EventParticipant.objects.select_related('participant', 'event').all()
+    #     return EventParticipant.objects.select_related("participant", "event").all()
     #
     #
     #
@@ -457,7 +457,7 @@ class Query:
 #     def create_event_expense_group(self, input: CreateEventExpenseGroupInput) -> CreateEventExpenseGroupOutput:
 #
 #         """ get last created event """
-#         last_created_event_id = Event.objects.order_by('-event_created_at').first().event_id
+#         last_created_event_id = Event.objects.order_by("-event_created_at").first().event_id
 #
 #         """ check if there is at least one event """
 #         if last_created_event_id is None:
