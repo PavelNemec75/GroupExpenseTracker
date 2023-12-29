@@ -266,7 +266,8 @@ class Mutation:
         ).exists()
 
         if expense_group_exists:
-            return ErrorResult(success=False, message="Cannot delete Event with associated EventExpenseGroup records", id=id)
+            return ErrorResult(success=False, message="Cannot delete Event with associated EventExpenseGroup records",
+                               id=id)
 
         try:
             event_to_delete.delete()
@@ -275,33 +276,41 @@ class Mutation:
 
         return SuccessResult(success=True, message="Event deleted successfully.", id=id)
 
+    @strawberry.mutation
+    def create_participant(
+            self,
+            email: str,
+            first_name: str,
+            last_name: str,
+    ) -> Union[SuccessResult, ErrorResult]:
 
-    # @strawberry.mutation
-    # def create_participant(
-    #         self,
-    #         participant_email: str,
-    #         participant_first_name: str,
-    #         participant_last_name: str,
-    # ) -> ParticipantType:
-    #     existing_participant = Participant.objects.filter(participant_email=participant_email).first()
-    #     if existing_participant:
-    #         raise ValueError(f"Participant with email address \"{participant_email}\" already exists.")
-    #
-    #     new_participant = Participant(
-    #         participant_email=participant_email,
-    #         participant_first_name=participant_first_name,
-    #         participant_last_name=participant_last_name,
-    #     )
-    #     new_participant.save()
-    #
-    #     return ParticipantType(
-    #         participant_created_at=new_participant.participant_created_at,
-    #         participant_email=new_participant.participant_email,
-    #         participant_first_name=new_participant.participant_first_name,
-    #         participant_last_name=new_participant.participant_last_name,
-    #         participant_id=new_participant.participant_id,
-    #     )
-    #
+        if not email or len(email.strip()) == 0:
+            return ErrorResult(success=False, message="Email must not be empty.")
+
+        if not first_name or len(first_name.strip()) == 0:
+            return ErrorResult(success=False, message="First name must not be empty.")
+
+        if not last_name or len(last_name.strip()) == 0:
+            return ErrorResult(success=False, message="Last name must not be empty.")
+
+        existing_participant = Participant.objects.filter(email=email).first()
+        if existing_participant:
+            return ErrorResult(success=False, message=f"Participant with email address '{email}' already exists.",
+                               id=existing_participant.id)
+
+        try:
+            new_participant = Participant(
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+            )
+            new_participant.save()
+        except Exception as e:
+            return ErrorResult(success=False, message=f"Cannot create participant: {e}")
+
+        return SuccessResult(success=True, message="Participant created successfully.", id=new_participant.id)
+
+
     # @strawberry.mutation
     # def delete_participant(
     #         self,
