@@ -103,22 +103,24 @@ def get_event_data_view(  # noqa: PLR0913
         for entry in queryset
     ]
 
-    edges = [CustomEventEdge(node=event, cursor=str(i)) for i, event in enumerate(event_data_list)]
+    edges = [CustomEventEdge(node=event,
+                             cursor=base64.b64encode(f"arrayconnection:{str(i)}".encode()).decode())
+             for i, event in enumerate(event_data_list)]
 
-    start_cursor = "1" if edges else None
-    end_cursor = str(len(edges)) if edges else None
+    # start_cursor = "1" if edges else None
+    # end_cursor = str(len(edges)) if edges else None
 
-    start_cursor_encoded = base64.b64encode(
-        f"arrayconnection:{start_cursor}".encode()).decode() if start_cursor else None
-    end_cursor_encoded = base64.b64encode(f"arrayconnection:{end_cursor}".encode()).decode() if end_cursor else None
+    start_cursor = base64.b64encode(f"arrayconnection:{'1'}".encode()).decode() if edges else None
+    end_cursor = base64.b64encode(
+        f"arrayconnection:{str(len(edges))}".encode()).decode() if edges else None  # noqa: RUF010
 
     return CustomEventConnection(
         edges=edges,
         page_info=PageInfo(
             has_next_page=len(event_data_list) > len(edges),
             has_previous_page=False,  # Modify based on your logic
-            start_cursor=start_cursor_encoded,
-            end_cursor=end_cursor_encoded,
+            start_cursor=start_cursor,
+            end_cursor=end_cursor,
         ),
         total_count=len(event_data_list),
     )
