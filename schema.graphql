@@ -4,17 +4,6 @@ scalar DateTime
 """Decimal (fixed-point)"""
 scalar Decimal
 
-type EventDataViewConnection {
-  pageInfo: PageInfo!
-  edges: [EventDataViewEdge!]!
-  totalCount: Int!
-}
-
-type EventDataViewEdge {
-  node: EventDataViewType!
-  cursor: String!
-}
-
 type EventDataViewType {
   viewId: Int!
   eventName: String!
@@ -26,6 +15,27 @@ type EventDataViewType {
   price: Decimal!
   paid: Decimal!
   balance: Decimal!
+}
+
+"""A connection to a list of items."""
+type EventDataViewTypeConnection {
+  """Pagination data for this connection"""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection"""
+  edges: [EventDataViewTypeEdge!]!
+
+  """Total quantity of existing nodes."""
+  totalCount: Int
+}
+
+"""An edge in a connection."""
+type EventDataViewTypeEdge {
+  """A cursor for use in pagination"""
+  cursor: String!
+
+  """The item at the end of the edge"""
+  node: EventDataViewType!
 }
 
 type EventExpenseGroupType implements Node {
@@ -146,6 +156,8 @@ type Query {
     id: GlobalID!
   ): Node!
   getEvents(
+    id: String = null
+
     """Returns the items in the list that come before the specified cursor."""
     before: String = null
 
@@ -159,6 +171,8 @@ type Query {
     last: Int = null
   ): EventTypeConnection!
   getParticipants(
+    id: String = null
+
     """Returns the items in the list that come before the specified cursor."""
     before: String = null
 
@@ -171,5 +185,19 @@ type Query {
     """Returns the items in the list that come after the specified cursor."""
     last: Int = null
   ): ParticipantTypeConnection!
-  getEventDataView(eventId: String = null, first: Int = null, after: String = null, last: Int = null, before: String = null): EventDataViewConnection!
+  getEventDataView(
+    id: String = null
+
+    """Returns the items in the list that come before the specified cursor."""
+    before: String = null
+
+    """Returns the items in the list that come after the specified cursor."""
+    after: String = null
+
+    """Returns the first n items from the list."""
+    first: Int = null
+
+    """Returns the items in the list that come after the specified cursor."""
+    last: Int = null
+  ): EventDataViewTypeConnection!
 }

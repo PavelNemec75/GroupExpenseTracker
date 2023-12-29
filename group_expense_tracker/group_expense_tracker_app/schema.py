@@ -1,171 +1,222 @@
 import base64
 from pathlib import Path
-from typing import Optional
+from typing import Iterable, List, Optional
 
 import strawberry
 from strawberry import relay
 from django.db.models import Count, F, OuterRef, Subquery, Window
 from django.db.models.functions import RowNumber
+from strawberry.relay import Connection
 
-from .types import EventDataViewConnection, EventDataViewEdge, EventDataViewType, EventType, ParticipantType
-from .models import Event, EventExpenseGroup
-
-
-@strawberry.field
-def get_event_data_view(  # noqa: PLR0913
-        event_id: Optional[str] = None,
-        first: Optional[int] = None,
-        after: Optional[str] = None,
-        last: Optional[int] = None,
-        before: Optional[str] = None,
-) -> EventDataViewConnection:
-    queryset = Event.objects
-
-    if event_id is not None:
-        queryset = queryset.filter(id=event_id)
-
-    subquery = (
-        EventExpenseGroup.objects
-        .filter(event_expense_item_id=OuterRef("item_id"))
-        .values("event_expense_item_id")
-        .annotate(count=Count("event_participant_id"))
-        .values("count")
-    )
-
-    queryset = (
-        queryset.annotate(
-            event_id=F("id"),
-            view_id=Window(
-                expression=RowNumber(),
-                order_by=(
-                    F("name").asc(),
-                    F("eventparticipant__eventexpensegroup__event_expense_item__name").asc(),
-                    F("eventparticipant__participant__first_name").asc(),
-                    F("eventparticipant__participant__last_name").asc(),
-                ),
-            ) - 1,
-            event_name=F("name"),
-            item_name=F("eventparticipant__eventexpensegroup__event_expense_item__name"),
-            item_id=F("eventparticipant__eventexpensegroup__event_expense_item__id"),
-            participant_id=F("eventparticipant__participant_id"),
-            first_name=F("eventparticipant__participant__first_name"),
-            last_name=F("eventparticipant__participant__last_name"),
-            price=F("eventparticipant__eventexpensegroup__event_expense_item__price_eur"),
-            paid=F("eventparticipant__eventexpensegroup__paid_eur"),
-            balance=F("eventparticipant__eventexpensegroup__paid_eur") - F("eventparticipant__eventexpensegroup__event_expense_item__price_eur") / Subquery(subquery)
-
-        ).order_by("event_name", "item_name", "first_name", "last_name")
-    )
-
-    total_count = len(queryset)
-    has_next_page = total_count / first > 0 if first is not None else False
-    has_previous_page = total_count / last > 0 if last is not None else False
-
-    def convert_queryset(queryset, custom_type, first, last):
-        data_list = queryset.values()
-
-        objects = [
-            custom_type(
-                event_id=entry["event_id"],
-                view_id=entry["view_id"],
-                event_name=entry["event_name"],
-                participant_id=entry["participant_id"],
-                first_name=entry["first_name"],
-                last_name=entry["last_name"],
-                item_id=entry["item_id"],
-                item_name=entry["item_name"],
-                price=entry["price"],
-                paid=entry["paid"],
-                balance=entry["balance"]
-            )
-            for entry in data_list
-        ]
-
-        if first is not None:
-            objects = objects[:first]
-        elif last is not None:
-            objects = objects[-last:]
-
-        return objects
-
-    if after:
-        queryset = queryset.filter(view_id__gt=int(base64.b64decode(after).decode("utf-8").split(":")[-1]))
-    elif before:
-        queryset = queryset.filter(view_id__lt=int(base64.b64decode(before).decode("utf-8").split(":")[-1]))
-
-    event_data_list = convert_queryset(queryset, EventDataViewType, first, last)
-
-    edges = [EventDataViewEdge(
-        node=event,
-        cursor=base64.b64encode(f"arrayconnection:{str(event.view_id)}".encode()).decode()  # noqa: RUF010
-    )
-        for event in event_data_list]
-
-    start_cursor = (
-        str(edges[0].cursor)
-        if edges
-        else None
-    )
-    end_cursor = (
-        str(edges[-1].cursor)
-        if edges
-        else None
-    )
-
-    return EventDataViewConnection(
-        edges=edges,
-        page_info=relay.PageInfo(
-            start_cursor=start_cursor,
-            end_cursor=end_cursor,
-            has_previous_page=has_previous_page,
-            has_next_page=has_next_page,
-        ),
-        total_count=total_count,
-    )
+from .types import (
+    EventDataViewConnection,
+    EventDataViewEdge,
+    EventDataViewType,
+    EventType, ParticipantType,
+)
+from .models import Event, EventExpenseGroup, Participant
 
 
-# from django.core.exceptions import ObjectDoesNotExist
-
-
-# @strawberry.input
-# class EventParticipantInput:
-#     event_participant_id: str
-#     paid_eur: float
+# @strawberry.field
+# def get_event_data_view(  # noqa: PLR0913
+#         event_id: Optional[str] = None,
+#         first: Optional[int] = None,
+#         after: Optional[str] = None,
+#         last: Optional[int] = None,
+#         before: Optional[str] = None,
+# ) -> EventDataViewConnection:
+#     queryset = Event.objects
 #
+#     if event_id is not None:
+#         queryset = queryset.filter(id=event_id)
 #
-# @strawberry.input
-# class CreateEventExpenseGroupInput:
-#     event_expense_item_name: str
-#     event_expense_item_price_eur: float
-#     participants: List[EventParticipantInput]
+#     subquery = (
+#         EventExpenseGroup.objects
+#         .filter(event_expense_item_id=OuterRef("item_id"))
+#         .values("event_expense_item_id")
+#         .annotate(count=Count("event_participant_id"))
+#         .values("count")
+#     )
 #
+#     queryset = (
+#         queryset.annotate(
+#             event_id=F("id"),
+#             view_id=Window(
+#                 expression=RowNumber(),
+#                 order_by=(
+#                     F("name").asc(),
+#                     F("eventparticipant__eventexpensegroup__event_expense_item__name").asc(),
+#                     F("eventparticipant__participant__first_name").asc(),
+#                     F("eventparticipant__participant__last_name").asc(),
+#                 ),
+#             ) - 1,
+#             event_name=F("name"),
+#             item_name=F("eventparticipant__eventexpensegroup__event_expense_item__name"),
+#             item_id=F("eventparticipant__eventexpensegroup__event_expense_item__id"),
+#             participant_id=F("eventparticipant__participant_id"),
+#             first_name=F("eventparticipant__participant__first_name"),
+#             last_name=F("eventparticipant__participant__last_name"),
+#             price=F("eventparticipant__eventexpensegroup__event_expense_item__price_eur"),
+#             paid=F("eventparticipant__eventexpensegroup__paid_eur"),
+#             balance=F("eventparticipant__eventexpensegroup__paid_eur") - F(
+#                 "eventparticipant__eventexpensegroup__event_expense_item__price_eur") / Subquery(subquery)
 #
-# @strawberry.type
-# class CreateEventExpenseGroupOutput:
-#     event_expense_group_id: str
+#         ).order_by("event_name", "item_name", "first_name", "last_name")
+#     )
+#
+#     total_count = len(queryset)
+#     has_next_page = total_count / first > 0 if first is not None else False
+#     has_previous_page = total_count / last > 0 if last is not None else False
+#
+#     def convert_queryset(queryset, custom_type, first, last):
+#         data_list = queryset.values()
+#
+#         objects = [
+#             custom_type(
+#                 event_id=entry["event_id"],
+#                 view_id=entry["view_id"],
+#                 event_name=entry["event_name"],
+#                 participant_id=entry["participant_id"],
+#                 first_name=entry["first_name"],
+#                 last_name=entry["last_name"],
+#                 item_id=entry["item_id"],
+#                 item_name=entry["item_name"],
+#                 price=entry["price"],
+#                 paid=entry["paid"],
+#                 balance=entry["balance"]
+#             )
+#             for entry in data_list
+#         ]
+#
+#         if first is not None:
+#             objects = objects[:first]
+#         elif last is not None:
+#             objects = objects[-last:]
+#
+#         return objects
+#
+#     if after:
+#         queryset = queryset.filter(view_id__gt=int(base64.b64decode(after).decode("utf-8").split(":")[-1]))
+#     elif before:
+#         queryset = queryset.filter(view_id__lt=int(base64.b64decode(before).decode("utf-8").split(":")[-1]))
+#
+#     event_data_list = convert_queryset(queryset, EventDataViewType, first, last)
+#
+#     edges = [EventDataViewEdge(
+#         node=event,
+#         cursor=base64.b64encode(f"arrayconnection:{str(event.view_id)}".encode()).decode()  # noqa: RUF010
+#     )
+#         for event in event_data_list]
+#
+#     start_cursor = (
+#         str(edges[0].cursor)
+#         if edges
+#         else None
+#     )
+#     end_cursor = (
+#         str(edges[-1].cursor)
+#         if edges
+#         else None
+#     )
+#
+#     return EventDataViewConnection(
+#         edges=edges,
+#         page_info=relay.PageInfo(
+#             start_cursor=start_cursor,
+#             end_cursor=end_cursor,
+#             has_previous_page=has_previous_page,
+#             has_next_page=has_next_page,
+#         ),
+#         total_count=total_count,
+#     )
+
+
+@strawberry.input
+class EventParticipantInput:
+    event_participant_id: str
+    paid_eur: float
+
+
+@strawberry.input
+class CreateEventExpenseGroupInput:
+    event_expense_item_name: str
+    event_expense_item_price_eur: float
+    participants: List[EventParticipantInput]
+
+
+@strawberry.type
+class CreateEventExpenseGroupOutput:
+    event_expense_group_id: str
 
 
 @strawberry.type
 class Query:
     node: relay.Node = relay.node()
 
-    get_events: strawberry.django.relay.ListConnectionWithTotalCount[EventType] = (
-        strawberry.django.connection())
+    @relay.connection(strawberry.django.relay.ListConnectionWithTotalCount[EventType])
+    def get_events(
+            self,
+            id: Optional[str] = None,
+    ) -> List[EventType]:
+        queryset = Event.objects.all() if id is None else Event.objects.filter(id=id)
+        return queryset
 
-    get_participants: strawberry.django.relay.ListConnectionWithTotalCount[ParticipantType] = (
-        strawberry.django.connection())
+    @relay.connection(strawberry.django.relay.ListConnectionWithTotalCount[ParticipantType])
+    def get_participants(
+            self,
+            id: Optional[str] = None,
+    ) -> List[ParticipantType]:
+        queryset = Participant.objects.all() if id is None else Participant.objects.filter(id=id)
+        return queryset
 
-    get_event_data_view: EventDataViewConnection = get_event_data_view
+    @relay.connection(strawberry.django.relay.ListConnectionWithTotalCount[EventDataViewType])
+    def get_event_data_view(
+            self,
+            id: Optional[str] = None,
+    ) -> List[EventDataViewType]:
+        queryset = Event.objects
 
-    # get_custom: strawberry.django.relay.ListConnectionWithTotalCount[CustomType] = (
-    #     strawberry.django.connection())
-    #
-    # fruits2: strawberry.django.relay.ListConnectionWithTotalCount[FruitType] = (
-    #     strawberry.django.connection())
+        if id is not None:
+            queryset = queryset.filter(id=id)
 
-    # from strawberry.django import auto
-    #
-    #
+        subquery = (
+            EventExpenseGroup.objects
+            .filter(event_expense_item_id=OuterRef("item_id"))
+            .values("event_expense_item_id")
+            .annotate(count=Count("event_participant_id"))
+            .values("count")
+        )
+
+        queryset = (
+            queryset.annotate(
+                event_id=F("id"),
+                view_id=Window(
+                    expression=RowNumber(),
+                    order_by=(
+                        F("name").asc(),
+                        F("eventparticipant__eventexpensegroup__event_expense_item__name").asc(),
+                        F("eventparticipant__participant__first_name").asc(),
+                        F("eventparticipant__participant__last_name").asc(),
+                    ),
+                ) - 1,
+                event_name=F("name"),
+                item_name=F("eventparticipant__eventexpensegroup__event_expense_item__name"),
+                item_id=F("eventparticipant__eventexpensegroup__event_expense_item__id"),
+                participant_id=F("eventparticipant__participant_id"),
+                first_name=F("eventparticipant__participant__first_name"),
+                last_name=F("eventparticipant__participant__last_name"),
+                price=F("eventparticipant__eventexpensegroup__event_expense_item__price_eur"),
+                paid=F("eventparticipant__eventexpensegroup__paid_eur"),
+                balance=F("eventparticipant__eventexpensegroup__paid_eur") - F(
+                    "eventparticipant__eventexpensegroup__event_expense_item__price_eur") / Subquery(subquery)
+
+            ).order_by("event_name", "item_name", "first_name", "last_name")
+        )
+
+        return queryset
+
+    # get_event_data_view: EventDataViewConnection = get_event_data_view
+
     # @strawberry.field
     # def get_events2(
     #         self,
