@@ -1,15 +1,21 @@
-type CustomEventConnection {
+"""Date with time (isoformat)"""
+scalar DateTime
+
+"""Decimal (fixed-point)"""
+scalar Decimal
+
+type EventDataViewConnection {
   pageInfo: PageInfo!
-  edges: [CustomEventEdge!]!
+  edges: [EventDataViewEdge!]!
   totalCount: Int!
 }
 
-type CustomEventEdge {
-  node: CustomEventType!
+type EventDataViewEdge {
+  node: EventDataViewType!
   cursor: String!
 }
 
-type CustomEventType {
+type EventDataViewType {
   viewId: Int!
   eventName: String!
   participantId: Int!
@@ -20,12 +26,6 @@ type CustomEventType {
   price: Decimal!
   paid: Decimal!
 }
-
-"""Date with time (isoformat)"""
-scalar DateTime
-
-"""Decimal (fixed-point)"""
-scalar Decimal
 
 type EventExpenseGroupType implements Node {
   """The Globally Unique ID of this object"""
@@ -170,5 +170,5 @@ type Query {
     """Returns the items in the list that come after the specified cursor."""
     last: Int = null
   ): ParticipantTypeConnection!
-  getEventDataView(eventId: String = null, first: Int = null, after: String = null, last: Int = null, before: String = null): CustomEventConnection!
+  getEventDataView(eventId: String = null, first: Int = null, after: String = null, last: Int = null, before: String = null): EventDataViewConnection!
 }

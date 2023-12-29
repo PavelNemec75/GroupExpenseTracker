@@ -1,6 +1,8 @@
 import strawberry
-from django.db.models import F
 from strawberry import relay
+from strawberry.relay import Connection
+from strawberry.schema.types.base_scalars import Decimal
+
 from . import models
 from datetime import datetime
 from typing import List, Optional
@@ -29,16 +31,8 @@ class ParticipantType(relay.Node):
 
     @strawberry.field
     def events(self) -> List["EventType"]:
-        return models.Event.objects.filter(event_participant__participant_id=self.id)
-    #
-    # @strawberry.field
-    # def expense_group(self) -> List["EventExpenseGroupType"]:
-    #     return models.EventExpenseGroup.objects.filter(event_participant__participant_id=self.id)
-    #
-    # @strawberry.field
-    # def expense_item(self) -> List["EventExpenseGroupType"]:
-    #     return models.EventExpenseGroup.objects.filter(
-    #         event_participant__participant_id=self.id)
+        return models.Event.objects.filter(eventparticipant__participant_id=self.id)
+
 
 @strawberry.django.type(models.EventParticipant)
 class EventParticipantType(relay.Node):
@@ -65,3 +59,30 @@ class EventExpenseGroupType(relay.Node):
     paid_eur: float
     event_participant: EventParticipantType
     event_expense_item: EventExpenseItemType
+
+
+@strawberry.type
+class EventDataViewType:
+    event_id: relay.NodeID[str]
+    view_id: int
+    event_name: str
+    participant_id: int
+    first_name: str
+    last_name: str
+    item_id: int
+    item_name: str
+    price: Decimal
+    paid: Decimal
+
+
+@strawberry.type
+class EventDataViewEdge:
+    node: EventDataViewType
+    cursor: str
+
+
+@strawberry.type
+class EventDataViewConnection(Connection):
+    edges: List[EventDataViewEdge]
+    page_info: relay.PageInfo
+    total_count: int
