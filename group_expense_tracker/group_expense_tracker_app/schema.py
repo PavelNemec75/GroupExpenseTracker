@@ -1,9 +1,11 @@
 # from datetime import datetime
+import base64
 from pathlib import Path
 from typing import Any, Iterable, List, Optional
 
 import strawberry
-from django.db.models import F
+from django.db.models import F, Func, IntegerField, Value, Window
+from django.db.models.functions import RowNumber
 from strawberry import relay
 from strawberry.relay import Connection, Edge, PageInfo
 from strawberry.schema.types.base_scalars import Decimal
@@ -26,7 +28,8 @@ from .models import Event, Participant, EventParticipant, EventExpenseGroup, Eve
 
 @strawberry.type
 class CustomEventType:
-    event_id: relay.NodeID[int]
+    event_id: relay.NodeID[str]
+    view_id: int
     event_name: str
     participant_id: int
     first_name: str
@@ -37,8 +40,28 @@ class CustomEventType:
     paid: Decimal
 
 
+@strawberry.type
+class CustomEventEdge:
+    node: CustomEventType
+    cursor: str
+
+
+@strawberry.type
+class CustomEventConnection:
+    edges: List[CustomEventEdge]
+    page_info: relay.PageInfo
+    total_count: int
+
+
 @strawberry.field
-def get_event_data_view(event_id: Optional[int] = None) -> list[CustomEventType]:
+def get_event_data_view(  # noqa: PLR0913
+        info: Info,
+        event_id: Optional[str] = None,
+        first: Optional[int] = None,
+        after: Optional[str] = None,
+        last: Optional[int] = None,
+        before: Optional[str] = None,
+) -> CustomEventConnection:
     queryset = Event.objects
 
     if event_id is not None:
@@ -46,6 +69,7 @@ def get_event_data_view(event_id: Optional[int] = None) -> list[CustomEventType]
 
     queryset = queryset.annotate(
         event_id=F("id"),
+        view_id=Window(expression=RowNumber(), order_by=F("id").asc()),
         event_name=F("name"),
         participant_id=F("eventparticipant__participant__id"),
         first_name=F("eventparticipant__participant__first_name"),
@@ -53,15 +77,20 @@ def get_event_data_view(event_id: Optional[int] = None) -> list[CustomEventType]
         item_id=F("eventparticipant__eventexpensegroup__event_expense_item__id"),
         item_name=F("eventparticipant__eventexpensegroup__event_expense_item__name"),
         price=F("eventparticipant__eventexpensegroup__event_expense_item__price_eur"),
-        paid=F("eventparticipant__eventexpensegroup__paid_eur")
+        paid=F("eventparticipant__eventexpensegroup__paid_eur"),
     ).values(
-        "event_id", "event_name", "participant_id", "first_name", "last_name",
+        "event_id", "view_id", "event_name", "participant_id", "first_name", "last_name",
         "item_id", "item_name", "price", "paid"
     ).order_by("first_name", "last_name", "item_name")
+
+    # queryset = queryset.annotate(
+    #     row_number=Window(expression=RowNumber(), order_by=F('id').asc())
+    # )
 
     event_data_list = [
         CustomEventType(
             event_id=entry["event_id"],
+            view_id=entry["view_id"],
             event_name=entry["event_name"],
             participant_id=entry["participant_id"],
             first_name=entry["first_name"],
@@ -74,7 +103,35 @@ def get_event_data_view(event_id: Optional[int] = None) -> list[CustomEventType]
         for entry in queryset
     ]
 
-    return event_data_list
+    edges = [CustomEventEdge(node=event, cursor=str(i)) for i, event in enumerate(event_data_list)]
+
+    start_cursor = "1" if edges else None
+    end_cursor = str(len(edges)) if edges else None
+
+    start_cursor_encoded = base64.b64encode(
+        f"arrayconnection:{start_cursor}".encode()).decode() if start_cursor else None
+    end_cursor_encoded = base64.b64encode(f"arrayconnection:{end_cursor}".encode()).decode() if end_cursor else None
+
+    return CustomEventConnection(
+        edges=edges,
+        page_info=PageInfo(
+            has_next_page=len(event_data_list) > len(edges),
+            has_previous_page=False,  # Modify based on your logic
+            start_cursor=start_cursor_encoded,
+            end_cursor=end_cursor_encoded,
+        ),
+        total_count=len(event_data_list),
+    )
+
+    # return CustomEventConnection(
+    #     edges=edges,
+    #     page_info=relay.PageInfo(
+    #         has_next_page=len(event_data_list) > 0,
+    #         has_previous_page=False,  # Modify based on your logic
+    #         start_cursor="1",
+    #         end_cursor=str(len(event_data_list)),
+    #     ),
+    # )
 
 
 # from django.core.exceptions import ObjectDoesNotExist
@@ -108,7 +165,9 @@ class Query:
     get_participants: strawberry.django.relay.ListConnectionWithTotalCount[ParticipantType] = (
         strawberry.django.connection())
 
-    get_event_data_view: list[CustomEventType] = get_event_data_view
+    # get_event_data_view: list[CustomEventType] = get_event_data_view
+
+    get_event_data_view: CustomEventConnection = get_event_data_view
 
     # get_custom: strawberry.django.relay.ListConnectionWithTotalCount[CustomType] = (
     #     strawberry.django.connection())

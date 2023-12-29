@@ -1,4 +1,16 @@
+type CustomEventConnection {
+  edges: [CustomEventEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type CustomEventEdge {
+  node: CustomEventType!
+  cursor: String!
+}
+
 type CustomEventType {
+  viewId: Int!
   eventName: String!
   participantId: Int!
   firstName: String!
@@ -158,5 +170,5 @@ type Query {
     """Returns the items in the list that come after the specified cursor."""
     last: Int = null
   ): ParticipantTypeConnection!
-  getEventDataView(eventId: Int = null): [CustomEventType!]!
+  getEventDataView(eventId: String = null, first: Int = null, after: String = null, last: Int = null, before: String = null): CustomEventConnection!
 }
