@@ -8,6 +8,22 @@ from datetime import datetime
 from typing import List, Optional
 
 
+@strawberry.type
+class SuccessResult:
+
+    success: bool
+    message: Optional[str]
+    id: Optional[int] = None
+    # new_object_id: Optional[int]
+
+
+@strawberry.type
+class ErrorResult:
+    success: bool
+    message: Optional[str]
+    id: Optional[int] = None
+
+
 @strawberry.django.type(models.Event)
 class EventType(relay.Node):
     id: relay.NodeID[str]  # noqa: A003
@@ -26,8 +42,6 @@ class EventType(relay.Node):
     #     if event_id:
     #         queryset = queryset.filter(event_id=self.id)
     #     return queryset
-
-
 
 
 @strawberry.django.type(models.Participant)
