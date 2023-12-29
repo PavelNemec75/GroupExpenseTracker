@@ -1,6 +1,6 @@
 type CustomEventConnection {
-  edges: [CustomEventEdge!]!
   pageInfo: PageInfo!
+  edges: [CustomEventEdge!]!
   totalCount: Int!
 }
 
