@@ -83,10 +83,6 @@ def get_event_data_view(  # noqa: PLR0913
         "item_id", "item_name", "price", "paid"
     ).order_by("first_name", "last_name", "item_name")
 
-    # queryset = queryset.annotate(
-    #     row_number=Window(expression=RowNumber(), order_by=F('id').asc())
-    # )
-
     event_data_list = [
         CustomEventType(
             event_id=entry["event_id"],
@@ -103,9 +99,11 @@ def get_event_data_view(  # noqa: PLR0913
         for entry in queryset
     ]
 
-    edges = [CustomEventEdge(node=event,
-                             cursor=base64.b64encode(f"arrayconnection:{str(i)}".encode()).decode())
-             for i, event in enumerate(event_data_list)]
+    edges = [CustomEventEdge(
+        node=event,
+        cursor=base64.b64encode(f"arrayconnection:{str(i)}".encode()).decode()  # noqa: RUF010
+    )
+        for i, event in enumerate(event_data_list)]
 
     # start_cursor = "1" if edges else None
     # end_cursor = str(len(edges)) if edges else None
