@@ -21,7 +21,6 @@ from .types import (
     # , EventExpenseGroupType, EventExpenseItemType
 )
 
-
 from .models import Event, Participant, EventParticipant, EventExpenseGroup, EventExpenseItem
 
 
@@ -38,30 +37,12 @@ class CustomEventType:
     paid: Decimal
 
 
-
-
 @strawberry.field
 def get_event_data_view(event_id: Optional[int] = None) -> list[CustomEventType]:
     queryset = Event.objects
 
     if event_id is not None:
         queryset = queryset.filter(id=event_id)
-
-    # queryset = Event.objects.filter(id=event_id).values(
-    #     event_id=F("id"),
-    #     event_name=F("name"),
-    #     participant_id=F("eventparticipant__participant__id"),
-    #     first_name=F("eventparticipant__participant__first_name"),
-    #     last_name=F("eventparticipant__participant__last_name"),
-    #     item_id=F("eventparticipant__eventexpensegroup__event_expense_item__id"),
-    #     item_name=F("eventparticipant__eventexpensegroup__event_expense_item__name"),
-    #     price=F("eventparticipant__eventexpensegroup__event_expense_item__price_eur"),
-    #     paid=F("eventparticipant__eventexpensegroup__paid_eur")
-    # ).order_by("first_name", "last_name", "item_name")
-    # queryset = User.objects.annotate(total_price=Sum("item__price")).values("name", "total_price")
-    # user_data_list = [{"name": entry["name"], "total_price": entry["total_price"]} for entry in queryset]
-    # return user_data_list
-
 
     queryset = queryset.annotate(
         event_id=F("id"),
@@ -77,8 +58,6 @@ def get_event_data_view(event_id: Optional[int] = None) -> list[CustomEventType]
         "event_id", "event_name", "participant_id", "first_name", "last_name",
         "item_id", "item_name", "price", "paid"
     ).order_by("first_name", "last_name", "item_name")
-
-
 
     event_data_list = [
         CustomEventType(
@@ -96,6 +75,8 @@ def get_event_data_view(event_id: Optional[int] = None) -> list[CustomEventType]
     ]
 
     return event_data_list
+
+
 # from django.core.exceptions import ObjectDoesNotExist
 
 
