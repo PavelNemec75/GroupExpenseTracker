@@ -3,14 +3,12 @@ from pathlib import Path
 from typing import Optional
 
 import strawberry
-from django.db.models import F, Window
-from django.db.models.functions import RowNumber
 from strawberry import relay
-from strawberry.relay import PageInfo
-from strawberry.types import Info
+from django.db.models import Count, F, OuterRef, Subquery, Window
+from django.db.models.functions import RowNumber
 
 from .types import EventDataViewConnection, EventDataViewEdge, EventDataViewType, EventType, ParticipantType
-from .models import Event
+from .models import Event, EventExpenseGroup
 
 
 @strawberry.field
@@ -26,29 +24,38 @@ def get_event_data_view(  # noqa: PLR0913
     if event_id is not None:
         queryset = queryset.filter(id=event_id)
 
-    queryset = queryset.annotate(
-        event_id=F("id"),
-        view_id=Window(
-            expression=RowNumber(),
-            order_by=(
-                F("name").asc(),
-                F("eventparticipant__participant__first_name").asc(),
-                F("eventparticipant__participant__last_name").asc(),
-                F("eventparticipant__eventexpensegroup__event_expense_item__name").asc(),
-            ),
-        ) - 1,
-        event_name=F("name"),
-        participant_id=F("eventparticipant__participant__id"),
-        first_name=F("eventparticipant__participant__first_name"),
-        last_name=F("eventparticipant__participant__last_name"),
-        item_id=F("eventparticipant__eventexpensegroup__event_expense_item__id"),
-        item_name=F("eventparticipant__eventexpensegroup__event_expense_item__name"),
-        price=F("eventparticipant__eventexpensegroup__event_expense_item__price_eur"),
-        paid=F("eventparticipant__eventexpensegroup__paid_eur"),
-    ).values(
-        "event_id", "view_id", "event_name", "participant_id", "first_name", "last_name",
-        "item_id", "item_name", "price", "paid"
-    ).order_by("event_name", "first_name", "last_name", "item_name")
+    subquery = (
+        EventExpenseGroup.objects
+        .filter(event_expense_item_id=OuterRef("item_id"))
+        .values("event_expense_item_id")
+        .annotate(count=Count("event_participant_id"))
+        .values("count")
+    )
+
+    queryset = (
+        queryset.annotate(
+            event_id=F("id"),
+            view_id=Window(
+                expression=RowNumber(),
+                order_by=(
+                    F("name").asc(),
+                    F("eventparticipant__eventexpensegroup__event_expense_item__name").asc(),
+                    F("eventparticipant__participant__first_name").asc(),
+                    F("eventparticipant__participant__last_name").asc(),
+                ),
+            ) - 1,
+            event_name=F("name"),
+            item_name=F("eventparticipant__eventexpensegroup__event_expense_item__name"),
+            item_id=F("eventparticipant__eventexpensegroup__event_expense_item__id"),
+            participant_id=F("eventparticipant__participant_id"),
+            first_name=F("eventparticipant__participant__first_name"),
+            last_name=F("eventparticipant__participant__last_name"),
+            price=F("eventparticipant__eventexpensegroup__event_expense_item__price_eur"),
+            paid=F("eventparticipant__eventexpensegroup__paid_eur"),
+            balance=F("eventparticipant__eventexpensegroup__paid_eur") - F("eventparticipant__eventexpensegroup__event_expense_item__price_eur") / Subquery(subquery)
+
+        ).order_by("event_name", "item_name", "first_name", "last_name")
+    )
 
     total_count = len(queryset)
     has_next_page = total_count / first > 0 if first is not None else False
@@ -68,7 +75,8 @@ def get_event_data_view(  # noqa: PLR0913
                 item_id=entry["item_id"],
                 item_name=entry["item_name"],
                 price=entry["price"],
-                paid=entry["paid"]
+                paid=entry["paid"],
+                balance=entry["balance"]
             )
             for entry in data_list
         ]
@@ -106,7 +114,7 @@ def get_event_data_view(  # noqa: PLR0913
 
     return EventDataViewConnection(
         edges=edges,
-        page_info=PageInfo(
+        page_info=relay.PageInfo(
             start_cursor=start_cursor,
             end_cursor=end_cursor,
             has_previous_page=has_previous_page,

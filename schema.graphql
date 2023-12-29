@@ -25,6 +25,7 @@ type EventDataViewType {
   itemName: String!
   price: Decimal!
   paid: Decimal!
+  balance: Decimal!
 }
 
 type EventExpenseGroupType implements Node {

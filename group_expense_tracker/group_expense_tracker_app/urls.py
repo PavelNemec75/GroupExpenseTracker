@@ -2,6 +2,7 @@
 from django.urls import path
 from . import views
 from strawberry.django.views import GraphQLView
+
 from .schema import schema
 
 

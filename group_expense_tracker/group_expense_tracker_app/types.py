@@ -73,6 +73,7 @@ class EventDataViewType:
     item_name: str
     price: Decimal
     paid: Decimal
+    balance: Decimal
 
 
 @strawberry.type

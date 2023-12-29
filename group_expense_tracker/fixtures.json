@@ -299,7 +299,7 @@
         "fields": {
             "event_participant_id": "4",
             "event_expense_item_id": "2",
-            "paid_eur": "100"
+            "paid_eur": "200"
         }
     },
 
