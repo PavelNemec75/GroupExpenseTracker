@@ -106,6 +106,7 @@ scalar GlobalID @specifiedBy(url: "https://relay.dev/graphql/objectidentificatio
 
 type Mutation {
   createEvent(name: String!, startDate: DateTime = null, endDate: DateTime = null): SuccessResultErrorResult!
+  deleteEvent(id: Int!): SuccessResultErrorResult!
 }
 
 """An object with a Globally Unique ID"""

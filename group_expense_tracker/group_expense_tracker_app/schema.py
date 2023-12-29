@@ -239,36 +239,43 @@ class Mutation:
         if existing_event:
             return ErrorResult(success=False, message=f"Event with name '{name}' already exists.", id=existing_event.id)
 
-        new_event = Event(
-            name=name,
-            start_date=start_date,
-            end_date=end_date,
-        )
-        new_event.save()
+        try:
+            new_event = Event(
+                name=name,
+                start_date=start_date,
+                end_date=end_date,
+            )
+            new_event.save()
+        except Exception as e:
+            return ErrorResult(success=False, message=f"Failed to create event. Error: {str(e)}")  # noqa: RUF010
 
         return SuccessResult(success=True, message="Event created successfully.", id=new_event.id)
 
+    @strawberry.mutation
+    def delete_event(
+            self,
+            id: int,
+    ) -> Union[SuccessResult, ErrorResult]:
+        try:
+            event_to_delete = Event.objects.get(id=id)
+        except ObjectDoesNotExist:
+            return ErrorResult(success=False, message=f"Event with id '{id}' not found.", id=id)
+
+        expense_group_exists = EventExpenseGroup.objects.filter(
+            event_participant__event=event_to_delete,
+        ).exists()
+
+        if expense_group_exists:
+            return ErrorResult(success=False, message="Cannot delete Event with associated EventExpenseGroup records", id=id)
+
+        try:
+            event_to_delete.delete()
+        except Exception as e:
+            return ErrorResult(success=False, message=f"Cannot delete Event: {e}", id=id)
+
+        return SuccessResult(success=True, message="Event deleted successfully.", id=id)
 
 
-    # @strawberry.mutation
-    # def delete_event(
-    #         self,
-    #         event_id: strawberry.ID,
-    # ) -> bool:
-    #     try:
-    #         event_to_delete = Event.objects.get(event_id=event_id)
-    #     except ObjectDoesNotExist as err:
-    #         raise ValueError("Event not found.") from err
-    #
-    #     expense_group_exists = EventExpenseGroup.objects.filter(
-    #         event_participant__event=event_to_delete,
-    #     ).exists()
-    #
-    #     if expense_group_exists:
-    #         raise ValueError("Cannot delete Event with associated EventExpenseGroup records.")
-    #
-    #     return event_to_delete.delete()
-    #
     # @strawberry.mutation
     # def create_participant(
     #         self,
