@@ -123,6 +123,7 @@ type Mutation {
   addParticipantToEvent(eventId: Int!, participantId: Int!): SuccessResultErrorResult!
   deleteParticipantFromEvent(eventId: String!, participantId: String!): SuccessResultErrorResult!
   createEventExpenseGroup(input: CreateEventExpenseGroupInput!): SuccessResultErrorResult!
+  deleteExpenseItem(eventExpenseItemId: Int!): SuccessResultErrorResult!
 }
 
 """An object with a Globally Unique ID"""

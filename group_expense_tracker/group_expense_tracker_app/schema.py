@@ -1,4 +1,3 @@
-import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Union
@@ -10,10 +9,7 @@ from strawberry import relay
 from django.db.models import Count, F, OuterRef, Subquery, Window
 from django.db.models.functions import RowNumber
 
-from .types import (
-    ErrorResult, EventDataViewType,
-    EventParticipantType, EventType, ParticipantType, SuccessResult,
-)
+from .types import ErrorResult, EventDataViewType, EventType, ParticipantType, SuccessResult
 from .models import Event, EventExpenseGroup, EventExpenseItem, EventParticipant, Participant
 
 
@@ -401,7 +397,6 @@ class Mutation:
 
     @strawberry.mutation
     def create_event_expense_group(self, input: CreateEventExpenseGroupInput) -> Union[SuccessResult, ErrorResult]:
-        # -> CreateEventExpenseGroupOutput:
 
         """ get last created event """
         last_created_event_id = Event.objects.order_by("-created_at").first().id
@@ -457,38 +452,40 @@ class Mutation:
 
         return SuccessResult(success=True, message="Event expense group created successfully.")
 
-    # @strawberry.mutation
-    # def delete_expense_group(
-    #         self,
-    #         event_expense_group_id: str,
-    # ) -> bool:
-    #
-    #     """ check if event expense group exists """
-    #     try:
-    #         expense_group_to_delete = EventExpenseGroup.objects.filter(event_expense_group_id=event_expense_group_id)
-    #         """ find if at least one record exits """
-    #         if not expense_group_to_delete.exists():
-    #             raise ValueError("Event expense group not found.")  # noqa: TRY301
-    #     except Exception as err:
-    #         raise ValueError("Event expense group not found.") from err
-    #
-    #     event_expense_item_id_to_delete = next(
-    #         iter(expense_group_to_delete.values_list("event_expense_item_id", flat=True)), None)
-    #
-    #     event_expense_items_to_delete = EventExpenseItem.objects.filter(
-    #         event_expense_item_id=event_expense_item_id_to_delete)
-    #
-    #     with transaction.atomic():
-    #
-    #         """ delete all records from event_expense_group table """
-    #         for expense_group in expense_group_to_delete:
-    #             expense_group.delete()
-    #
-    #         """ delete all records from event_expense_item table """
-    #         for event_expense_item in event_expense_items_to_delete:
-    #             event_expense_item.delete()
-    #
-    #     return True
+    @strawberry.mutation
+    def delete_expense_item(
+            self,
+            event_expense_item_id: int,
+    ) -> Union[SuccessResult, ErrorResult]:
+
+        """ check if event expense item exists """
+        try:
+            expense_item_to_delete = EventExpenseItem.objects.filter(id=event_expense_item_id)
+            """ find if at least one record exits """
+            if not expense_item_to_delete:
+                return ErrorResult(success=False, message="Event expense item not found.")
+        except Exception as e:
+            return ErrorResult(success=False, message=f"Error finding event expense item: {e}")
+
+        try:
+
+            with transaction.atomic():
+                expense_groups_to_delete = EventExpenseGroup.objects.filter(
+                    event_expense_item_id=event_expense_item_id,
+                )
+
+                for expense_group_to_delete in expense_groups_to_delete:
+                    expense_group_to_delete.delete()
+
+                event_expense_item_to_delete = EventExpenseItem.objects.get(
+                    id=event_expense_item_id
+                )
+                event_expense_item_to_delete.delete()
+
+        except Exception as e:
+            return ErrorResult(success=False, message=f"Cannot delete event expense item: {e}")
+
+        return SuccessResult(success=True, message="Event expense item successfully deleted.")
 
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)
