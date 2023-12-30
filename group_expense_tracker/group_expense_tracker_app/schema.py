@@ -336,7 +336,8 @@ class Mutation:
         ).exists()
 
         if expense_group_exists:
-            return ErrorResult(success=False, message="Cannot delete Participant with associated EventExpenseGroup records.")
+            return ErrorResult(success=False,
+                               message="Cannot delete Participant with associated EventExpenseGroup records.")
 
         try:
             participant_to_delete.delete()
@@ -345,39 +346,36 @@ class Mutation:
 
         return SuccessResult(success=True, message="Participant deleted successfully.", id=id)
 
+    @strawberry.mutation
+    def add_participant_to_event(
+            self,
+            event_id: int,
+            participant_id: int,
+    ) -> Union[SuccessResult, ErrorResult]:
+
+        if not Event.objects.filter(id=event_id).exists():
+            return ErrorResult(success=False, message=f"Event with ID {event_id} does not exist.", id=event_id)
+
+        if not Participant.objects.filter(id=participant_id).exists():
+            return ErrorResult(success=False, message=f"Participant with ID {participant_id} does not exist.",
+                               id=participant_id)
+
+        if EventParticipant.objects.filter(event__id=event_id,
+                                           participant__id=participant_id).exists():
+            return ErrorResult(success=False, message=f"EventParticipant record with Event ID {event_id} and "
+                                                      f"Participant ID {participant_id} already exists.")
+        try:
+            event_to_add = Event.objects.get(id=event_id)
+            participant_to_add = Participant.objects.get(id=participant_id)
+            new_event_participant = EventParticipant(event=event_to_add, participant=participant_to_add)
+            new_event_participant.save()
+        except Exception as e:
+            return ErrorResult(success=False, message=f"Cannot add participant to event: {e}")
+
+        return SuccessResult(success=True, message="Participant added to event successfully.", id=new_event_participant.id)
 
 
-    # @strawberry.mutation
-    # def add_participant_to_event(
-    #         self,
-    #         event_id: str,
-    #         participant_id: str,
-    # ) -> EventParticipantType:
-    #
-    #     if not Event.objects.filter(event_id=event_id).exists():
-    #         raise ValueError(f"Event with ID {event_id} does not exist.")
-    #
-    #     if not Participant.objects.filter(participant_id=participant_id).exists():
-    #         raise ValueError(f"Participant with ID {participant_id} does not exist.")
-    #
-    #     if EventParticipant.objects.filter(event__event_id=event_id,
-    #                                        participant__participant_id=participant_id).exists():
-    #         raise ValueError(
-    #             f"EventParticipant record with Event ID {event_id} and "
-    #             f"Participant ID {participant_id} already exists.")
-    #
-    #     event_to_add = Event.objects.get(event_id=event_id)
-    #     participant_to_add = Participant.objects.get(participant_id=participant_id)
-    #     new_event_participant = EventParticipant(event=event_to_add, participant=participant_to_add)
-    #     new_event_participant.save()
-    #
-    #     return EventParticipantType(
-    #         event_participant_registered_at=new_event_participant.event_participant_registered_at,
-    #         event_participant_id=new_event_participant.event_participant_id,
-    #         participant=participant_to_add,
-    #         event=event_to_add,
-    #     )
-    #
+
     # @strawberry.mutation
     # def delete_participant_from_event(
     #         self,
