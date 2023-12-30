@@ -10,11 +10,9 @@ from typing import List, Optional
 
 @strawberry.type
 class SuccessResult:
-
     success: bool
     message: Optional[str]
     id: Optional[int] = None
-    # new_object_id: Optional[int]
 
 
 @strawberry.type
@@ -35,13 +33,6 @@ class EventType(relay.Node):
     @strawberry.field
     def event_participants(self) -> List["EventParticipantType"]:
         return models.EventParticipant.objects.filter(event_id=self.id)
-
-    # @strawberry.field
-    # def event_participants(self, event_id: Optional[str] = None) -> List["EventParticipantType"]:
-    #     queryset = models.EventParticipant.objects.all()
-    #     if event_id:
-    #         queryset = queryset.filter(event_id=self.id)
-    #     return queryset
 
 
 @strawberry.django.type(models.Participant)

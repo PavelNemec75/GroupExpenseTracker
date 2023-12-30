@@ -1,4 +1,4 @@
-input CreateEventExpenseGroupInput {
+input CreateEventExpenseItemInput {
   eventExpenseItemName: String!
   eventExpenseItemPriceEur: Float!
   participants: [EventParticipantInput!]!
@@ -122,8 +122,8 @@ type Mutation {
   deleteParticipant(id: ID = null, email: String = null): SuccessResultErrorResult!
   addParticipantToEvent(eventId: Int!, participantId: Int!): SuccessResultErrorResult!
   deleteParticipantFromEvent(eventId: String!, participantId: String!): SuccessResultErrorResult!
-  createEventExpenseGroup(input: CreateEventExpenseGroupInput!): SuccessResultErrorResult!
-  deleteExpenseItem(eventExpenseItemId: Int!): SuccessResultErrorResult!
+  createEventExpenseItem(input: CreateEventExpenseItemInput!): SuccessResultErrorResult!
+  deleteEventExpenseItem(eventExpenseItemId: Int!): SuccessResultErrorResult!
 }
 
 """An object with a Globally Unique ID"""

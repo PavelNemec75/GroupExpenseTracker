@@ -134,15 +134,10 @@ class EventParticipantInput:
 
 
 @strawberry.input
-class CreateEventExpenseGroupInput:
+class CreateEventExpenseItemInput:
     event_expense_item_name: str
     event_expense_item_price_eur: float
     participants: List[EventParticipantInput]
-
-
-@strawberry.type
-class CreateEventExpenseGroupOutput:
-    event_expense_group_id: str
 
 
 @strawberry.type
@@ -219,7 +214,6 @@ class Query:
 
 @strawberry.type
 class Mutation:
-    # create_event_result: Union[SuccessResult, ErrorResult]
 
     @strawberry.mutation
     def create_event(
@@ -396,7 +390,7 @@ class Mutation:
         return SuccessResult(success=True, message="Participant deleted successfully from event.")
 
     @strawberry.mutation
-    def create_event_expense_group(self, input: CreateEventExpenseGroupInput) -> Union[SuccessResult, ErrorResult]:
+    def create_event_expense_item(self, input: CreateEventExpenseItemInput) -> Union[SuccessResult, ErrorResult]:
 
         """ get last created event """
         last_created_event_id = Event.objects.order_by("-created_at").first().id
@@ -453,7 +447,7 @@ class Mutation:
         return SuccessResult(success=True, message="Event expense group created successfully.")
 
     @strawberry.mutation
-    def delete_expense_item(
+    def delete_event_expense_item(
             self,
             event_expense_item_id: int,
     ) -> Union[SuccessResult, ErrorResult]:
