@@ -110,6 +110,7 @@ type Mutation {
   createParticipant(email: String!, firstName: String!, lastName: String!): SuccessResultErrorResult!
   deleteParticipant(id: ID = null, email: String = null): SuccessResultErrorResult!
   addParticipantToEvent(eventId: Int!, participantId: Int!): SuccessResultErrorResult!
+  deleteParticipantFromEvent(eventId: String!, participantId: String!): SuccessResultErrorResult!
 }
 
 """An object with a Globally Unique ID"""

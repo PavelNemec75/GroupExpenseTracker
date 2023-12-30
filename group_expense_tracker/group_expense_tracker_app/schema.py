@@ -372,30 +372,35 @@ class Mutation:
         except Exception as e:
             return ErrorResult(success=False, message=f"Cannot add participant to event: {e}")
 
-        return SuccessResult(success=True, message="Participant added to event successfully.", id=new_event_participant.id)
+        return SuccessResult(success=True, message="Participant added to event successfully.",
+                             id=new_event_participant.id)
+
+    @strawberry.mutation
+    def delete_participant_from_event(
+            self,
+            event_id: str,
+            participant_id: str,
+    ) -> Union[SuccessResult, ErrorResult]:
+
+        try:
+            event_participant = EventParticipant.objects.get(
+                event__id=event_id,
+                participant__id=participant_id,
+            )
+        except ObjectDoesNotExist:
+            return ErrorResult(success=False, message=f"EventParticipant record with Event ID {event_id} and "
+                                                      f"Participant ID {participant_id} doest not exists.")
 
 
 
-    # @strawberry.mutation
-    # def delete_participant_from_event(
-    #         self,
-    #         event_id: str,
-    #         participant_id: str,
-    # ) -> bool:
-    #
-    #     try:
-    #         event_participant = EventParticipant.objects.get(
-    #             event__event_id=event_id,
-    #             participant__participant_id=participant_id,
-    #         )
-    #     except ObjectDoesNotExist as err:
-    #         raise ValueError(
-    #             f"EventParticipant record with Event ID {event_id} and "
-    #             f"Participant ID {participant_id} does not exist.",
-    #         ) from err
-    #
-    #     return event_participant.delete()
-    #
+        try:
+            event_participant.delete()
+        except Exception as e:
+            return ErrorResult(success=False, message=f"Cannot delete participant from event: {e}")
+
+        return SuccessResult(success=True, message="Participant deleted successfully from event.")
+
+
     # @strawberry.mutation
     # def create_event_expense_group(self, input: CreateEventExpenseGroupInput) -> CreateEventExpenseGroupOutput:
     #
