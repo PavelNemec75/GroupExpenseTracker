@@ -1,3 +1,9 @@
+input CreateEventExpenseGroupInput {
+  eventExpenseItemName: String!
+  eventExpenseItemPriceEur: Float!
+  participants: [EventParticipantInput!]!
+}
+
 """Date with time (isoformat)"""
 scalar DateTime
 
@@ -59,6 +65,11 @@ type EventExpenseItemType implements Node {
   priceEur: Float!
 }
 
+input EventParticipantInput {
+  eventParticipantId: String!
+  paidEur: Float!
+}
+
 type EventParticipantType implements Node {
   """The Globally Unique ID of this object"""
   id: GlobalID!
@@ -111,6 +122,7 @@ type Mutation {
   deleteParticipant(id: ID = null, email: String = null): SuccessResultErrorResult!
   addParticipantToEvent(eventId: Int!, participantId: Int!): SuccessResultErrorResult!
   deleteParticipantFromEvent(eventId: String!, participantId: String!): SuccessResultErrorResult!
+  createEventExpenseGroup(input: CreateEventExpenseGroupInput!): SuccessResultErrorResult!
 }
 
 """An object with a Globally Unique ID"""

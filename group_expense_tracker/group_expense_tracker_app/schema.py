@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Union
@@ -391,8 +392,6 @@ class Mutation:
             return ErrorResult(success=False, message=f"EventParticipant record with Event ID {event_id} and "
                                                       f"Participant ID {participant_id} doest not exists.")
 
-
-
         try:
             event_participant.delete()
         except Exception as e:
@@ -400,64 +399,64 @@ class Mutation:
 
         return SuccessResult(success=True, message="Participant deleted successfully from event.")
 
+    @strawberry.mutation
+    def create_event_expense_group(self, input: CreateEventExpenseGroupInput) -> Union[SuccessResult, ErrorResult]:
+        # -> CreateEventExpenseGroupOutput:
 
-    # @strawberry.mutation
-    # def create_event_expense_group(self, input: CreateEventExpenseGroupInput) -> CreateEventExpenseGroupOutput:
-    #
-    #     """ get last created event """
-    #     last_created_event_id = Event.objects.order_by("-event_created_at").first().event_id
-    #
-    #     """ check if there is at least one event """
-    #     if last_created_event_id is None:
-    #         raise ValueError("No events found. Cannot create EventExpenseGroup without an event.")
-    #
-    #     """ get list of event_participants from mutation query """
-    #     event_participant_ids = [participant_input.event_participant_id for participant_input in input.participants]
-    #
-    #     """ tries to get same event_participants from the table """
-    #     existing_event_participants = EventParticipant.objects.filter(pk__in=event_participant_ids)
-    #
-    #     """ checks if all received event_participants exists in table """
-    #     if existing_event_participants.count() != len(event_participant_ids):
-    #         raise ValueError("One or more event_participant_id do not exist. Data will not be saved.")
-    #
-    #     """ checks if total sum of paid_eur per participant is equal to total_item price """
-    #     total_paid_eur = sum(participant_input.paid_eur for participant_input in input.participants)
-    #     if total_paid_eur != input.event_expense_item_price_eur:
-    #         raise ValueError("The sum of paid_eur does not match event_expense_item_price_eur. "
-    #                          "Data will not be saved.")
-    #
-    #     """ checks if event_expense_item_name is not empty or None, and event_expense_item_price_eur is not empty,
-    #     None, and greater than zero """
-    #     if (not input.event_expense_item_name or input.event_expense_item_price_eur is None or
-    #             input.event_expense_item_price_eur <= 0):
-    #         raise ValueError(
-    #             "Invalid input for event_expense_item_name or event_expense_item_price_eur. Data will not be saved.")
-    #
-    #     with transaction.atomic():
-    #
-    #         """ saves new event expense item """
-    #         new_event_expense_item_id = str(uuid.uuid4())
-    #         event_expense_item = EventExpenseItem.objects.create(  # noqa: F841
-    #             event_expense_item_id=new_event_expense_item_id,
-    #             event_expense_item_name=input.event_expense_item_name,
-    #             event_expense_item_price_eur=input.event_expense_item_price_eur,
-    #         )
-    #
-    #         event_expense_groups = []
-    #         new_event_expense_group_id = str(uuid.uuid4())
-    #
-    #         for participant_input in input.participants:
-    #             event_expense_group = EventExpenseGroup.objects.create(  # noqa: F841
-    #                 event_expense_group_id=new_event_expense_group_id,
-    #                 paid_eur=participant_input.paid_eur,
-    #                 event_expense_item_id=new_event_expense_item_id,
-    #                 event_participant_id=participant_input.event_participant_id,
-    #             )
-    #             event_expense_groups.append(event_expense_group)
-    #
-    #     return CreateEventExpenseGroupOutput(event_expense_group_id=new_event_expense_group_id)
-    #
+        """ get last created event """
+        last_created_event_id = Event.objects.order_by("-created_at").first().id
+
+        """ check if there is at least one event """
+        if last_created_event_id is None:
+            return ErrorResult(success=False,
+                               message="No events found. Cannot create EventExpenseGroup without an event.")
+
+        """ get list of event_participants from mutation query """
+        event_participant_ids = [participant_input.event_participant_id for participant_input in input.participants]
+
+        """ tries to get same event_participants from the table """
+        existing_event_participants = EventParticipant.objects.filter(pk__in=event_participant_ids)
+
+        """ checks if all received event_participants exists in table """
+        if existing_event_participants.count() != len(event_participant_ids):
+            return ErrorResult(success=False,
+                               message="One or more event_participant_id do not exist. Data will not be saved.")
+
+        """ checks if total sum of paid_eur per participant is equal to total_item price """
+        total_paid_eur = sum(participant_input.paid_eur for participant_input in input.participants)
+        if total_paid_eur != input.event_expense_item_price_eur:
+            return ErrorResult(success=False,
+                               message="The sum of paid_eur does not match event_expense_item_price_eur. "
+                                       "Data will not be saved.")
+
+        """ checks if event_expense_item_name is not empty or None, and event_expense_item_price_eur is not empty,
+        None, and greater than zero """
+        if (not input.event_expense_item_name or input.event_expense_item_price_eur is None or
+                input.event_expense_item_price_eur <= 0):
+            return ErrorResult(success=False,
+                               message="Invalid input for event_expense_item_name or event_expense_item_price_eur. "
+                                       "Data will not be saved.")
+
+        try:
+            with transaction.atomic():
+                """ saves new event expense item """
+                new_event_expense_item = EventExpenseItem.objects.create(  # noqa: F841
+                    name=input.event_expense_item_name,
+                    price_eur=input.event_expense_item_price_eur,
+                )
+
+                for participant_input in input.participants:
+                    new_event_expense_group_record = EventExpenseGroup.objects.create(  # noqa: F841
+                        paid_eur=participant_input.paid_eur,
+                        event_expense_item_id=new_event_expense_item.id,
+                        event_participant_id=participant_input.event_participant_id,
+                    )
+
+        except Exception as e:
+            return ErrorResult(success=False, message=f"Cannot create new event expense group: {e}")
+
+        return SuccessResult(success=True, message="Event expense group created successfully.")
+
     # @strawberry.mutation
     # def delete_expense_group(
     #         self,
