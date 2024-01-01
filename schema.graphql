@@ -244,7 +244,7 @@ type Query {
     """Returns the items in the list that come after the specified cursor."""
     last: Int = null
   ): ParticipantTypeConnection!
-  getEventDataView(
+  getEventDataView1(
     id: String = null
 
     """Returns the items in the list that come before the specified cursor."""

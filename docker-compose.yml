@@ -1,40 +1,14 @@
 version: '3'
-services:
 
-  nisgis-d365-mariadb:
+services:
+  web:
     build:
       context: .
-      dockerfile: Dockerfile.mariadb
-    container_name: nisgis-d365-mariadb-container
-    env_file:
-      - .secrets
-    volumes:
-      - nisgis-d365-mariadb-volume:/var/lib/mysql
+      dockerfile: Dockerfile
     ports:
-      - "3307:3306"
-    networks:
-      - nisgis-d365-network
-
-  nisgis-d365-flask-api:
-    build: .
-    container_name: nisgis-d365-flask-api-container
+      - "8000:8000"
     volumes:
-      - nisgis-d365-flask-api-volume:/app
-    ports:
-      - "5000:5000"
-    networks:
-      - nisgis-d365-network
-    depends_on:
-      - nisgis-d365-mariadb
-
-networks:
-  nisgis-d365-network:
+      - GroupExpenseTrackerVolume:/app
 
 volumes:
-  nisgis-d365-mariadb-volume:
-  nisgis-d365-flask-api-volume:
-    driver: local
-    driver_opts:
-      type: none
-      device: .
-      o: bind
+  GroupExpenseTrackerVolume:

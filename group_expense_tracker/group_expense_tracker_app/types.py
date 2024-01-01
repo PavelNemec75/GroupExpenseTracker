@@ -2,7 +2,6 @@ import strawberry
 from strawberry import relay
 from strawberry.relay import Connection
 from strawberry.schema.types.base_scalars import Decimal
-
 from . import models
 from datetime import datetime
 from typing import List, Optional
@@ -51,6 +50,11 @@ class EventParticipantType(relay.Node):
     @strawberry.field
     def event_expense_group(self) -> List["EventExpenseGroupType"]:
         return models.EventExpenseGroup.objects.filter(event_participant_id=self.id)
+
+    # @strawberry.field
+    # async def event_expense_group(self) -> List["EventExpenseGroupType"]:
+    #     return await models.EventExpenseGroup.objects.filter(event_participant_id=self.id)
+
 
 
 @strawberry.django.type(models.EventExpenseItem)

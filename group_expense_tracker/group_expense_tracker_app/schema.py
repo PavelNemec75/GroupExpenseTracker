@@ -9,7 +9,7 @@ from strawberry import relay
 from django.db.models import Count, F, OuterRef, Subquery, Window
 from django.db.models.functions import RowNumber
 
-from .types import Result, EventDataView2Type, EventDataViewType, EventType, ParticipantType
+from .types import EventParticipantType, Result, EventDataView2Type, EventDataViewType, EventType, ParticipantType
 from .models import Event, EventDataView2, EventExpenseGroup, EventExpenseItem, EventParticipant, Participant
 
 
@@ -165,7 +165,7 @@ class Query:
         return queryset
 
     @relay.connection(strawberry.django.relay.ListConnectionWithTotalCount[EventDataViewType])
-    def get_event_data_view(
+    def get_event_data_view1(
             self,
             id: Optional[str] = None,
     ) -> List[EventDataViewType]:
