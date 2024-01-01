@@ -101,3 +101,21 @@ class EventDataViewConnection(Connection):
     edges: List[EventDataViewEdge]
     page_info: relay.PageInfo
     total_count: int
+
+
+@strawberry.django.type(models.EventDataView2)
+class EventDataView2Type:
+    id: relay.NodeID[str]
+    event_id: int
+    event_name: str
+    start_date: str
+    end_date: str
+    created_at: str
+    item_name: str
+    item_id: int
+    participant_id: int
+    first_name: str
+    last_name: str
+    price: float
+    paid: float
+    balance: float

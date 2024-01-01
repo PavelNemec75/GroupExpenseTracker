@@ -16,6 +16,43 @@ type ErrorResult {
   id: Int
 }
 
+type EventDataView2Type {
+  eventId: Int!
+  eventName: String!
+  startDate: String!
+  endDate: String!
+  createdAt: String!
+  itemName: String!
+  itemId: Int!
+  participantId: Int!
+  firstName: String!
+  lastName: String!
+  price: Float!
+  paid: Float!
+  balance: Float!
+}
+
+"""A connection to a list of items."""
+type EventDataView2TypeConnection {
+  """Pagination data for this connection"""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection"""
+  edges: [EventDataView2TypeEdge!]!
+
+  """Total quantity of existing nodes."""
+  totalCount: Int
+}
+
+"""An edge in a connection."""
+type EventDataView2TypeEdge {
+  """A cursor for use in pagination"""
+  cursor: String!
+
+  """The item at the end of the edge"""
+  node: EventDataView2Type!
+}
+
 type EventDataViewType {
   viewId: Int!
   eventName: String!
@@ -228,6 +265,21 @@ type Query {
     """Returns the items in the list that come after the specified cursor."""
     last: Int = null
   ): EventDataViewTypeConnection!
+  getEventDataView2(
+    id: String = null
+
+    """Returns the items in the list that come before the specified cursor."""
+    before: String = null
+
+    """Returns the items in the list that come after the specified cursor."""
+    after: String = null
+
+    """Returns the first n items from the list."""
+    first: Int = null
+
+    """Returns the items in the list that come after the specified cursor."""
+    last: Int = null
+  ): EventDataView2TypeConnection!
 }
 
 type SuccessResult {

@@ -9,8 +9,8 @@ from strawberry import relay
 from django.db.models import Count, F, OuterRef, Subquery, Window
 from django.db.models.functions import RowNumber
 
-from .types import ErrorResult, EventDataViewType, EventType, ParticipantType, SuccessResult
-from .models import Event, EventExpenseGroup, EventExpenseItem, EventParticipant, Participant
+from .types import ErrorResult, EventDataView2Type, EventDataViewType, EventType, ParticipantType, SuccessResult
+from .models import Event, EventDataView2, EventExpenseGroup, EventExpenseItem, EventParticipant, Participant
 
 
 # @strawberry.field
@@ -209,6 +209,16 @@ class Query:
         )
         if not queryset.exists():
             raise GraphQLError(f"Event with ID {id} not found")
+        return queryset
+
+    @relay.connection(strawberry.django.relay.ListConnectionWithTotalCount[EventDataView2Type])
+    def get_event_data_view2(
+            self,
+            id: Optional[str] = None,
+    ) -> List[EventDataView2Type]:
+        queryset = EventDataView2.objects.all() if id is None else EventDataView2.objects.filter(id=id)
+        if not queryset.exists():
+            raise GraphQLError(f"EventDataView2 with ID {id} not found")
         return queryset
 
 

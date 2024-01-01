@@ -45,3 +45,24 @@ class EventExpenseGroup(models.Model):
 
     def __str__(self):
         return f"{self.event_participant} - {self.event_expense_item}"
+
+
+class EventDataView2(models.Model):
+    id = models.IntegerField(primary_key=True)
+    event_id = models.IntegerField()
+    event_name = models.CharField(max_length=255)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    created_at = models.DateTimeField()
+    item_name = models.CharField(max_length=255)
+    item_id = models.IntegerField()
+    participant_id = models.IntegerField()
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    paid = models.DecimalField(max_digits=10, decimal_places=2)
+    balance = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        managed = False
+        db_table = "get_event_data_view2"
