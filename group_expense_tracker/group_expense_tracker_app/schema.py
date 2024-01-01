@@ -9,7 +9,7 @@ from strawberry import relay
 from django.db.models import Count, F, OuterRef, Subquery, Window
 from django.db.models.functions import RowNumber
 
-from .types import EventParticipantType, Result, EventDataView2Type, EventDataViewType, EventType, ParticipantType
+from .types import Result, EventDataView2Type, EventDataViewType, EventType, ParticipantType
 from .models import Event, EventDataView2, EventExpenseGroup, EventExpenseItem, EventParticipant, Participant
 
 
@@ -147,8 +147,9 @@ class Query:
     @relay.connection(strawberry.django.relay.ListConnectionWithTotalCount[EventType])
     def get_events(
             self,
-            id: Optional[str] = None,
+            id: Optional[str] = None
     ) -> List[EventType]:
+
         queryset = Event.objects.all() if id is None else Event.objects.filter(id=id)
         if not queryset.exists():
             raise GraphQLError(f"Event with ID {id} not found")

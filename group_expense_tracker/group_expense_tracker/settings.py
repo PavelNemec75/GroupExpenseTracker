@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+# from graphql_auth.backends import GraphqlAuthBackend
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -48,8 +49,8 @@ INSTALLED_APPS = [
     # Debugging
     'debug_toolbar',
     'graphiql_strawberry_debug_toolbar',
-
-
+    'social_django',
+    'graphql_auth',
 ]
 
 MIDDLEWARE = [
@@ -58,6 +59,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'group_expense_tracker_app.middleware.StrawberryLoginMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -136,3 +138,29 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+    # 'graphql_auth.backends.GraphqlAuthBackend',
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '562078021839-paam4qe9b7nrkcotjou5ge3fvrkm5jci.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+LOGIN_REDIRECT_URL = '/'
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+
+
+
+
+# {"web":{""
+# "client_id":"562078021839-paam4qe9b7nrkcotjou5ge3fvrkm5jci.apps.googleusercontent.com",
+# "project_id":"groupexpensetracker",
+# "auth_uri":"https://accounts.google.com/o/oauth2/auth",
+# "token_uri":"https://oauth2.googleapis.com/token",
+# "auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
+# "client_secret":"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",
+# "redirect_uris":["http://localhost:8000"],
+# "javascript_origins":["http://localhost:8000"]}}

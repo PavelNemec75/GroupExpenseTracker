@@ -28,3 +28,6 @@ tzdata==2023.3
 urllib3==1.26.18
 websockets==10.4
 yarl==1.9.3
+social-auth-app-django==5.4.0
+django-graphql-auth==0.3.16
+graphql-core==3.2.3
