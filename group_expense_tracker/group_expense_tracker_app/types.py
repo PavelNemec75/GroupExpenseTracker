@@ -9,14 +9,7 @@ from typing import List, Optional
 
 
 @strawberry.type
-class SuccessResult:
-    success: bool
-    message: Optional[str]
-    id: Optional[int] = None
-
-
-@strawberry.type
-class ErrorResult:
+class Result:
     success: bool
     message: Optional[str]
     id: Optional[int] = None

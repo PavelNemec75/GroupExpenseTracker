@@ -1,6 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional
 import strawberry
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
@@ -9,7 +9,7 @@ from strawberry import relay
 from django.db.models import Count, F, OuterRef, Subquery, Window
 from django.db.models.functions import RowNumber
 
-from .types import ErrorResult, EventDataView2Type, EventDataViewType, EventType, ParticipantType, SuccessResult
+from .types import Result, EventDataView2Type, EventDataViewType, EventType, ParticipantType
 from .models import Event, EventDataView2, EventExpenseGroup, EventExpenseItem, EventParticipant, Participant
 
 
@@ -231,14 +231,14 @@ class Mutation:
             name: str,
             start_date: Optional[datetime] = None,
             end_date: Optional[datetime] = None,
-    ) -> Union[SuccessResult, ErrorResult]:
+    ) -> Result:
 
         if not name or len(name.strip()) == 0:
-            return ErrorResult(success=False, message="Name must not be empty.")
+            return Result(success=False, message="Name must not be empty.")
 
         existing_event = Event.objects.filter(name=name).first()
         if existing_event:
-            return ErrorResult(success=False, message=f"Event with name '{name}' already exists.", id=existing_event.id)
+            return Result(success=False, message=f"Event with name '{name}' already exists.", id=existing_event.id)
 
         try:
             new_event = Event(
@@ -248,34 +248,34 @@ class Mutation:
             )
             new_event.save()
         except Exception as e:
-            return ErrorResult(success=False, message=f"Failed to create event. Error: {str(e)}")  # noqa: RUF010
+            return Result(success=False, message=f"Failed to create event. Error: {str(e)}")  # noqa: RUF010
 
-        return SuccessResult(success=True, message="Event created successfully.", id=new_event.id)
+        return Result(success=True, message="Event created successfully.", id=new_event.id)
 
     @strawberry.mutation
     def delete_event(
             self,
             id: int,
-    ) -> Union[SuccessResult, ErrorResult]:
+    ) -> Result:
         try:
             event_to_delete = Event.objects.get(id=id)
         except ObjectDoesNotExist:
-            return ErrorResult(success=False, message=f"Event with id '{id}' not found.", id=id)
+            return Result(success=False, message=f"Event with id '{id}' not found.", id=id)
 
         expense_group_exists = EventExpenseGroup.objects.filter(
             event_participant__event=event_to_delete,
         ).exists()
 
         if expense_group_exists:
-            return ErrorResult(success=False, message="Cannot delete Event with associated EventExpenseGroup records",
-                               id=id)
+            return Result(success=False, message="Cannot delete Event with associated EventExpenseGroup records",
+                          id=id)
 
         try:
             event_to_delete.delete()
         except Exception as e:
-            return ErrorResult(success=False, message=f"Cannot delete Event: {e}", id=id)
+            return Result(success=False, message=f"Cannot delete Event: {e}", id=id)
 
-        return SuccessResult(success=True, message="Event deleted successfully.", id=id)
+        return Result(success=True, message="Event deleted successfully.", id=id)
 
     @strawberry.mutation
     def create_participant(
@@ -283,21 +283,21 @@ class Mutation:
             email: str,
             first_name: str,
             last_name: str,
-    ) -> Union[SuccessResult, ErrorResult]:
+    ) -> Result:
 
         if not email or len(email.strip()) == 0:
-            return ErrorResult(success=False, message="Email must not be empty.")
+            return Result(success=False, message="Email must not be empty.")
 
         if not first_name or len(first_name.strip()) == 0:
-            return ErrorResult(success=False, message="First name must not be empty.")
+            return Result(success=False, message="First name must not be empty.")
 
         if not last_name or len(last_name.strip()) == 0:
-            return ErrorResult(success=False, message="Last name must not be empty.")
+            return Result(success=False, message="Last name must not be empty.")
 
         existing_participant = Participant.objects.filter(email=email).first()
         if existing_participant:
-            return ErrorResult(success=False, message=f"Participant with email address '{email}' already exists.",
-                               id=existing_participant.id)
+            return Result(success=False, message=f"Participant with email address '{email}' already exists.",
+                          id=existing_participant.id)
 
         try:
             new_participant = Participant(
@@ -307,19 +307,19 @@ class Mutation:
             )
             new_participant.save()
         except Exception as e:
-            return ErrorResult(success=False, message=f"Cannot create participant: {e}")
+            return Result(success=False, message=f"Cannot create participant: {e}")
 
-        return SuccessResult(success=True, message="Participant created successfully.", id=new_participant.id)
+        return Result(success=True, message="Participant created successfully.", id=new_participant.id)
 
     @strawberry.mutation
     def delete_participant(
             self,
             id: Optional[strawberry.ID] = None,
             email: Optional[str] = None,
-    ) -> Union[SuccessResult, ErrorResult]:
+    ) -> Result:
 
         if not id and not email:
-            return ErrorResult(success=False, message="Either participant_id or participant_email must be provided.")
+            return Result(success=False, message="Either participant_id or participant_email must be provided.")
 
         participant_to_delete = None
 
@@ -330,58 +330,58 @@ class Mutation:
                 participant_to_delete = Participant.objects.get(email=email)
 
         except ObjectDoesNotExist as err:
-            return ErrorResult(success=False, message=f"Participant not found: {err}")
+            return Result(success=False, message=f"Participant not found: {err}")
 
         expense_group_exists = EventExpenseGroup.objects.filter(
             event_participant__participant=participant_to_delete,
         ).exists()
 
         if expense_group_exists:
-            return ErrorResult(success=False,
-                               message="Cannot delete Participant with associated EventExpenseGroup records.")
+            return Result(success=False,
+                          message="Cannot delete Participant with associated EventExpenseGroup records.")
 
         try:
             participant_to_delete.delete()
         except Exception as e:
-            return ErrorResult(success=False, message=f"Cannot delete Participant: {e}", id=id)
+            return Result(success=False, message=f"Cannot delete Participant: {e}", id=id)
 
-        return SuccessResult(success=True, message="Participant deleted successfully.", id=id)
+        return Result(success=True, message="Participant deleted successfully.", id=id)
 
     @strawberry.mutation
     def add_participant_to_event(
             self,
             event_id: int,
             participant_id: int,
-    ) -> Union[SuccessResult, ErrorResult]:
+    ) -> Result:
 
         if not Event.objects.filter(id=event_id).exists():
-            return ErrorResult(success=False, message=f"Event with ID {event_id} does not exist.", id=event_id)
+            return Result(success=False, message=f"Event with ID {event_id} does not exist.", id=event_id)
 
         if not Participant.objects.filter(id=participant_id).exists():
-            return ErrorResult(success=False, message=f"Participant with ID {participant_id} does not exist.",
-                               id=participant_id)
+            return Result(success=False, message=f"Participant with ID {participant_id} does not exist.",
+                          id=participant_id)
 
         if EventParticipant.objects.filter(event__id=event_id,
                                            participant__id=participant_id).exists():
-            return ErrorResult(success=False, message=f"EventParticipant record with Event ID {event_id} and "
-                                                      f"Participant ID {participant_id} already exists.")
+            return Result(success=False, message=f"EventParticipant record with Event ID {event_id} and "
+                                                 f"Participant ID {participant_id} already exists.")
         try:
             event_to_add = Event.objects.get(id=event_id)
             participant_to_add = Participant.objects.get(id=participant_id)
             new_event_participant = EventParticipant(event=event_to_add, participant=participant_to_add)
             new_event_participant.save()
         except Exception as e:
-            return ErrorResult(success=False, message=f"Cannot add participant to event: {e}")
+            return Result(success=False, message=f"Cannot add participant to event: {e}")
 
-        return SuccessResult(success=True, message="Participant added to event successfully.",
-                             id=new_event_participant.id)
+        return Result(success=True, message="Participant added to event successfully.",
+                      id=new_event_participant.id)
 
     @strawberry.mutation
     def delete_participant_from_event(
             self,
             event_id: str,
             participant_id: str,
-    ) -> Union[SuccessResult, ErrorResult]:
+    ) -> Result:
 
         try:
             event_participant = EventParticipant.objects.get(
@@ -389,26 +389,26 @@ class Mutation:
                 participant__id=participant_id,
             )
         except ObjectDoesNotExist:
-            return ErrorResult(success=False, message=f"EventParticipant record with Event ID {event_id} and "
-                                                      f"Participant ID {participant_id} doest not exists.")
+            return Result(success=False, message=f"EventParticipant record with Event ID {event_id} and "
+                                                 f"Participant ID {participant_id} doest not exists.")
 
         try:
             event_participant.delete()
         except Exception as e:
-            return ErrorResult(success=False, message=f"Cannot delete participant from event: {e}")
+            return Result(success=False, message=f"Cannot delete participant from event: {e}")
 
-        return SuccessResult(success=True, message="Participant deleted successfully from event.")
+        return Result(success=True, message="Participant deleted successfully from event.")
 
     @strawberry.mutation
-    def create_event_expense_item(self, input: CreateEventExpenseItemInput) -> Union[SuccessResult, ErrorResult]:
+    def create_event_expense_item(self, input: CreateEventExpenseItemInput) -> Result:
 
         """ get last created event """
         last_created_event_id = Event.objects.order_by("-created_at").first().id
 
         """ check if there is at least one event """
         if last_created_event_id is None:
-            return ErrorResult(success=False,
-                               message="No events found. Cannot create EventExpenseGroup without an event.")
+            return Result(success=False,
+                          message="No events found. Cannot create EventExpenseGroup without an event.")
 
         """ get list of event_participants from mutation query """
         event_participant_ids = [participant_input.event_participant_id for participant_input in input.participants]
@@ -418,23 +418,23 @@ class Mutation:
 
         """ checks if all received event_participants exists in table """
         if existing_event_participants.count() != len(event_participant_ids):
-            return ErrorResult(success=False,
-                               message="One or more event_participant_id do not exist. Data will not be saved.")
+            return Result(success=False,
+                          message="One or more event_participant_id do not exist. Data will not be saved.")
 
         """ checks if total sum of paid_eur per participant is equal to total_item price """
         total_paid_eur = sum(participant_input.paid_eur for participant_input in input.participants)
         if total_paid_eur != input.event_expense_item_price_eur:
-            return ErrorResult(success=False,
-                               message="The sum of paid_eur does not match event_expense_item_price_eur. "
-                                       "Data will not be saved.")
+            return Result(success=False,
+                          message="The sum of paid_eur does not match event_expense_item_price_eur. "
+                                  "Data will not be saved.")
 
         """ checks if event_expense_item_name is not empty or None, and event_expense_item_price_eur is not empty,
         None, and greater than zero """
         if (not input.event_expense_item_name or input.event_expense_item_price_eur is None or
                 input.event_expense_item_price_eur <= 0):
-            return ErrorResult(success=False,
-                               message="Invalid input for event_expense_item_name or event_expense_item_price_eur. "
-                                       "Data will not be saved.")
+            return Result(success=False,
+                          message="Invalid input for event_expense_item_name or event_expense_item_price_eur. "
+                                  "Data will not be saved.")
 
         try:
             with transaction.atomic():
@@ -452,24 +452,24 @@ class Mutation:
                     )
 
         except Exception as e:
-            return ErrorResult(success=False, message=f"Cannot create new event expense group: {e}")
+            return Result(success=False, message=f"Cannot create new event expense group: {e}")
 
-        return SuccessResult(success=True, message="Event expense group created successfully.")
+        return Result(success=True, message="Event expense group created successfully.")
 
     @strawberry.mutation
     def delete_event_expense_item(
             self,
             event_expense_item_id: int,
-    ) -> Union[SuccessResult, ErrorResult]:
+    ) -> Result:
 
         """ check if event expense item exists """
         try:
             expense_item_to_delete = EventExpenseItem.objects.filter(id=event_expense_item_id)
             """ find if at least one record exits """
             if not expense_item_to_delete:
-                return ErrorResult(success=False, message="Event expense item not found.")
+                return Result(success=False, message="Event expense item not found.")
         except Exception as e:
-            return ErrorResult(success=False, message=f"Error finding event expense item: {e}")
+            return Result(success=False, message=f"Error finding event expense item: {e}")
 
         try:
 
@@ -487,9 +487,9 @@ class Mutation:
                 event_expense_item_to_delete.delete()
 
         except Exception as e:
-            return ErrorResult(success=False, message=f"Cannot delete event expense item: {e}")
+            return Result(success=False, message=f"Cannot delete event expense item: {e}")
 
-        return SuccessResult(success=True, message="Event expense item successfully deleted.")
+        return Result(success=True, message="Event expense item successfully deleted.")
 
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)

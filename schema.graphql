@@ -10,12 +10,6 @@ scalar DateTime
 """Decimal (fixed-point)"""
 scalar Decimal
 
-type ErrorResult {
-  success: Boolean!
-  message: String
-  id: Int
-}
-
 type EventDataView2Type {
   eventId: Int!
   eventName: String!
@@ -153,14 +147,14 @@ The `ID` scalar type represents a unique identifier, often used to refetch an ob
 scalar GlobalID @specifiedBy(url: "https://relay.dev/graphql/objectidentification.htm")
 
 type Mutation {
-  createEvent(name: String!, startDate: DateTime = null, endDate: DateTime = null): SuccessResultErrorResult!
-  deleteEvent(id: Int!): SuccessResultErrorResult!
-  createParticipant(email: String!, firstName: String!, lastName: String!): SuccessResultErrorResult!
-  deleteParticipant(id: ID = null, email: String = null): SuccessResultErrorResult!
-  addParticipantToEvent(eventId: Int!, participantId: Int!): SuccessResultErrorResult!
-  deleteParticipantFromEvent(eventId: String!, participantId: String!): SuccessResultErrorResult!
-  createEventExpenseItem(input: CreateEventExpenseItemInput!): SuccessResultErrorResult!
-  deleteEventExpenseItem(eventExpenseItemId: Int!): SuccessResultErrorResult!
+  createEvent(name: String!, startDate: DateTime = null, endDate: DateTime = null): Result!
+  deleteEvent(id: Int!): Result!
+  createParticipant(email: String!, firstName: String!, lastName: String!): Result!
+  deleteParticipant(id: ID = null, email: String = null): Result!
+  addParticipantToEvent(eventId: Int!, participantId: Int!): Result!
+  deleteParticipantFromEvent(eventId: String!, participantId: String!): Result!
+  createEventExpenseItem(input: CreateEventExpenseItemInput!): Result!
+  deleteEventExpenseItem(eventExpenseItemId: Int!): Result!
 }
 
 """An object with a Globally Unique ID"""
@@ -282,10 +276,8 @@ type Query {
   ): EventDataView2TypeConnection!
 }
 
-type SuccessResult {
+type Result {
   success: Boolean!
   message: String
   id: Int
 }
-
-union SuccessResultErrorResult = SuccessResult | ErrorResult
