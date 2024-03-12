@@ -1,0 +1,153 @@
+
+python -m pip install --upgrade pip
+python -m pip install Django==4.2.7
+python -m pip install strawberry-graphql-django==0.25.0
+
+django-admin startproject group_expense_tracker
+python manage.py startapp group_expense_tracker_app
+
+python manage.py createsuperuser
+create superuser
+
+
+/group_expense_tracker/settings.py
+INSTALLED_APPS
+add
+# Local app
+'group_expense_tracker_app',
+# Third party apps
+'strawberry',
+
+/group_expense_tracker/urls.py
+import include
+add
+urlpatterns
+add
+path("", include("group_expense_tracker_app.urls"))
+
+/group_expense_tracker_app
+create file urls.py
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path("", views.index_view, name="index"),
+]
+
+/group_expense_tracker_app/views.py
+add
+def index_view(request):
+    context = {"title": "API"}
+    return render(request, "index.html", context)
+
+
+/group_expense_tracker_app
+create folder templates
+create file index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>title</title>
+</head>
+
+<body>
+
+<h3>{{title}}</h3>
+
+</body>
+
+</html>
+
+create new run configuration
+script group_expense_tracker\manage.py
+parameter runserver
+
+
+
+/group_expense_tracker_app
+
+###
+models.py
+
+class Posts(models.Model):
+    title = models.CharField(max_length=255, blank=True, null=True)
+    author = models.CharField(max_length=255, blank=True, null=True)
+    message = models.TextField(blank=True, null=True)
+
+###
+admin.py
+from .models import Posts
+admin.site.register(Posts)
+
+
+### create
+types.py
+import strawberry
+from typing import List
+from . import models
+
+
+@strawberry.django.type(models.Posts)
+class PostType:
+    id: int
+    title: str
+    author: str
+    message: str
+
+###
+schema.py
+import strawberry
+from typing import List
+from .models import Posts
+from .types import PostType
+
+
+# Query
+
+@strawberry.type
+class Query:
+    @strawberry.field
+    def xposts(self, title:str=None) -> List[PostType]:
+        if title:
+            post = Posts.objects.filter(title=title)
+            return post
+        return Posts.objects.all()
+
+
+# Mutation
+
+@strawberry.type
+class Mutation:
+    @strawberry.field
+    def create_xpost(self, title:str, author:str, message:str) -> PostType:
+        post = Posts(title=title, author=author, message=message)
+        post.save()
+        return post
+
+    def update_xpost(self, id:int, title:str, author:str, message:str) -> PostType:
+        post = Posts.objects.get(id=id)
+        post.title = title
+        post.author = author
+        post.message = message
+        post.save()
+        return post
+
+# Defina a schema
+schema = strawberry.Schema(query=Query, mutation=Mutation)
+
+
+/group_expense_tracker
+urls.py
+add
+from strawberry.django.views import GraphQLView
+from group_expense_tracker_app.schema import schema
+
+to urlpatterns add
+path("graphql", GraphQLView.as_view(schema=schema))
+
+
+python manage.py makemigrations
+
+python manage.py migrate

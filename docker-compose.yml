@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - GroupExpenseTrackerVolume:/app
+
+volumes:
+  GroupExpenseTrackerVolume:

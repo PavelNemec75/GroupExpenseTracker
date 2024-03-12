@@ -1,0 +1,73 @@
+[tool.ruff]
+
+select = [
+    "F", # Pyflakes - checks Python source files for errors
+    "E", # Pycodestyle errors - pycodestyle is a tool to check your Python code against some of the style conventions in PEP 8.
+    "W", # Pycodestyle warnings - pycodestyle is a tool to check your Python code against some of the style conventions in PEP 8.
+    "I", # Isort - imports sorting
+    "N", # PEP 8 Naming Conventions
+    "YTT", # Flake8 plugin which checks for misuse of sys.version or sys.version_info
+    "S", # Flake8 Bandit - automated security testing
+    "B", # Flake8 plugin finding likely bugs and design problems in your program
+    "A", # Check for python builtins being used as variables or parameters
+    "COM", # Flake8 lint for trailing commas
+    "DTZ", # Flake8 plugin to ban the usage of unsafe naive datetime class
+    "ICN", # Flake8 plugin for import conventions
+    "SIM", # Flake8 plugin which checks for code that can be simplified
+    "TID", # Flake8 plugin that helps you write tidier imports
+    "ARG", # Flake8 plugin that checks for unused function arguments
+    "PTH", # Flake8 plugin finding use of functions that can be replaced by pathlib module
+    "TD", # Flake8 plugin to check TODOs in the project
+    "PL", # Pylint - Python code static checker
+    "TRY", # Prevent Exception Handling AntiPatterns
+    "PERF", # Pylint extension with performance anti-patterns
+    "RUF", # Ruff specific rules
+]
+
+# all rules
+# select = ["F", "W", "E", "W", "C90", "I", "N", "D", "UP", "YTT", "ANN", "ASYNC", "S", "BLE", "FBT", "B", "A", "COM", "CPY", "C4", "DTZ", "T10", "DJ", "EM", "EXE", "FA", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "TD", "FIX", "ERA", "PD", "PGH", "PL", "TRY", "FLY", "NPY", "AIR", "PERF", "FURB", "RUF"]
+
+ignore = ["TRY002", "TRY003", "TD003", "I001", "N803", "N806", "RUF100", "RUF012", "RUF013", "A002"]
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+#fixable = ["ALL"]
+fixable = []
+unfixable = []
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".idea",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "group_expense_tracker/group_expense_tracker_app/migrations",
+]
+
+per-file-ignores = { }
+
+# Line length
+line-length = 120
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Assume Python 3.11
+target-version = "py311"

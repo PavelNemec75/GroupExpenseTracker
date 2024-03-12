@@ -1,0 +1,283 @@
+input CreateEventExpenseItemInput {
+  eventExpenseItemName: String!
+  eventExpenseItemPriceEur: Float!
+  participants: [EventParticipantInput!]!
+}
+
+"""Date with time (isoformat)"""
+scalar DateTime
+
+"""Decimal (fixed-point)"""
+scalar Decimal
+
+type EventDataView2Type {
+  eventId: Int!
+  eventName: String!
+  startDate: String!
+  endDate: String!
+  createdAt: String!
+  itemName: String!
+  itemId: Int!
+  participantId: Int!
+  firstName: String!
+  lastName: String!
+  price: Float!
+  paid: Float!
+  balance: Float!
+}
+
+"""A connection to a list of items."""
+type EventDataView2TypeConnection {
+  """Pagination data for this connection"""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection"""
+  edges: [EventDataView2TypeEdge!]!
+
+  """Total quantity of existing nodes."""
+  totalCount: Int
+}
+
+"""An edge in a connection."""
+type EventDataView2TypeEdge {
+  """A cursor for use in pagination"""
+  cursor: String!
+
+  """The item at the end of the edge"""
+  node: EventDataView2Type!
+}
+
+type EventDataViewType {
+  viewId: Int!
+  eventName: String!
+  participantId: Int!
+  firstName: String!
+  lastName: String!
+  itemId: Int!
+  itemName: String!
+  price: Decimal!
+  paid: Decimal!
+  balance: Decimal!
+}
+
+"""A connection to a list of items."""
+type EventDataViewTypeConnection {
+  """Pagination data for this connection"""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection"""
+  edges: [EventDataViewTypeEdge!]!
+
+  """Total quantity of existing nodes."""
+  totalCount: Int
+}
+
+"""An edge in a connection."""
+type EventDataViewTypeEdge {
+  """A cursor for use in pagination"""
+  cursor: String!
+
+  """The item at the end of the edge"""
+  node: EventDataViewType!
+}
+
+type EventExpenseGroupType implements Node {
+  """The Globally Unique ID of this object"""
+  id: GlobalID!
+  paidEur: Float!
+  eventParticipant: EventParticipantType!
+  eventExpenseItem: EventExpenseItemType!
+}
+
+type EventExpenseItemType implements Node {
+  """The Globally Unique ID of this object"""
+  id: GlobalID!
+  name: String!
+  priceEur: Float!
+}
+
+input EventParticipantInput {
+  eventParticipantId: String!
+  paidEur: Float!
+}
+
+type EventParticipantType implements Node {
+  """The Globally Unique ID of this object"""
+  id: GlobalID!
+  event: EventType!
+  participant: ParticipantType!
+  registeredAt: DateTime!
+  eventExpenseGroup: [EventExpenseGroupType!]!
+}
+
+type EventType implements Node {
+  """The Globally Unique ID of this object"""
+  id: GlobalID!
+  name: String!
+  startDate: DateTime
+  endDate: DateTime
+  createdAt: DateTime!
+  eventParticipants: [EventParticipantType!]!
+}
+
+"""A connection to a list of items."""
+type EventTypeConnection {
+  """Pagination data for this connection"""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection"""
+  edges: [EventTypeEdge!]!
+
+  """Total quantity of existing nodes."""
+  totalCount: Int
+}
+
+"""An edge in a connection."""
+type EventTypeEdge {
+  """A cursor for use in pagination"""
+  cursor: String!
+
+  """The item at the end of the edge"""
+  node: EventType!
+}
+
+"""
+The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `"4"`) or integer (such as `4`) input value will be accepted as an ID.
+"""
+scalar GlobalID @specifiedBy(url: "https://relay.dev/graphql/objectidentification.htm")
+
+type Mutation {
+  createEvent(name: String!, startDate: DateTime = null, endDate: DateTime = null): Result!
+  deleteEvent(id: Int!): Result!
+  createParticipant(email: String!, firstName: String!, lastName: String!): Result!
+  deleteParticipant(id: ID = null, email: String = null): Result!
+  addParticipantToEvent(eventId: Int!, participantId: Int!): Result!
+  deleteParticipantFromEvent(eventId: String!, participantId: String!): Result!
+  createEventExpenseItem(input: CreateEventExpenseItemInput!): Result!
+  deleteEventExpenseItem(eventExpenseItemId: Int!): Result!
+}
+
+"""An object with a Globally Unique ID"""
+interface Node {
+  """The Globally Unique ID of this object"""
+  id: GlobalID!
+}
+
+"""Information to aid in pagination."""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: String
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: String
+}
+
+type ParticipantType implements Node {
+  """The Globally Unique ID of this object"""
+  id: GlobalID!
+  email: String!
+  firstName: String!
+  lastName: String!
+  createdAt: DateTime!
+  events: [EventType!]!
+}
+
+"""A connection to a list of items."""
+type ParticipantTypeConnection {
+  """Pagination data for this connection"""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection"""
+  edges: [ParticipantTypeEdge!]!
+
+  """Total quantity of existing nodes."""
+  totalCount: Int
+}
+
+"""An edge in a connection."""
+type ParticipantTypeEdge {
+  """A cursor for use in pagination"""
+  cursor: String!
+
+  """The item at the end of the edge"""
+  node: ParticipantType!
+}
+
+type Query {
+  node(
+    """The ID of the object."""
+    id: GlobalID!
+  ): Node!
+  getEvents(
+    id: String = null
+
+    """Returns the items in the list that come before the specified cursor."""
+    before: String = null
+
+    """Returns the items in the list that come after the specified cursor."""
+    after: String = null
+
+    """Returns the first n items from the list."""
+    first: Int = null
+
+    """Returns the items in the list that come after the specified cursor."""
+    last: Int = null
+  ): EventTypeConnection!
+  getParticipants(
+    id: String = null
+
+    """Returns the items in the list that come before the specified cursor."""
+    before: String = null
+
+    """Returns the items in the list that come after the specified cursor."""
+    after: String = null
+
+    """Returns the first n items from the list."""
+    first: Int = null
+
+    """Returns the items in the list that come after the specified cursor."""
+    last: Int = null
+  ): ParticipantTypeConnection!
+  getEventDataView1(
+    id: String = null
+
+    """Returns the items in the list that come before the specified cursor."""
+    before: String = null
+
+    """Returns the items in the list that come after the specified cursor."""
+    after: String = null
+
+    """Returns the first n items from the list."""
+    first: Int = null
+
+    """Returns the items in the list that come after the specified cursor."""
+    last: Int = null
+  ): EventDataViewTypeConnection!
+  getEventDataView2(
+    id: String = null
+
+    """Returns the items in the list that come before the specified cursor."""
+    before: String = null
+
+    """Returns the items in the list that come after the specified cursor."""
+    after: String = null
+
+    """Returns the first n items from the list."""
+    first: Int = null
+
+    """Returns the items in the list that come after the specified cursor."""
+    last: Int = null
+  ): EventDataView2TypeConnection!
+}
+
+type Result {
+  success: Boolean!
+  message: String
+  id: Int
+}
